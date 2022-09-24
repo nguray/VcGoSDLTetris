@@ -1,6 +1,8 @@
-/*     Simple Tetris using sdl2.   *\
+/*--------------------------------------------*\
+		Simple Tetris using sdl2
                  2022
-\*      Raymond NGUYEN THANH       */
+			Raymond NGUYEN THANH
+\*--------------------------------------------*/
 
 package main
 
