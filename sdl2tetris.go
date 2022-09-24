@@ -239,7 +239,7 @@ func main() {
 				elapsed := time.Since(start)
 				elapsedV := time.Since(startV)
 
-				fAlreadyMoveH := false
+				//fAlreadyMoveH := false
 				milliSecond := elapsed.Milliseconds()
 				if milliSecond > 100 {
 					start = time.Now()
@@ -251,7 +251,7 @@ func main() {
 							game.curTetromino.x = backupPosX
 						}
 					}
-					fAlreadyMoveH = true
+					//fAlreadyMoveH = true
 				}
 
 				if game.fDrop {
@@ -279,13 +279,13 @@ func main() {
 					if milliSecondV > limitElapse {
 						startV = time.Now()
 
-						if !fAlreadyMoveH && game.velX != 0 {
-							game.curTetromino.x += game.velX
-							if game.curTetromino.HitGround(game.board) || game.curTetromino.OutBoardLimit() {
-								//-- Undo Move
-								game.curTetromino.x -= game.velX
-							}
-						}
+						// if !fAlreadyMoveH && game.velX != 0 {
+						// 	game.curTetromino.x += game.velX
+						// 	if game.curTetromino.HitGround(game.board) || game.curTetromino.OutBoardLimit() {
+						// 		//-- Undo Move
+						// 		game.curTetromino.x -= game.velX
+						// 	}
+						// }
 
 						game.nextTetromino.RotateRight()
 
