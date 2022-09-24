@@ -55,7 +55,6 @@ var (
 	cellSize        int
 	myRand          *rand.Rand
 	processEvents   ProcessEvents
-	velY            int
 	tt_font         *ttf.Font
 	succes_sound    *mix.Chunk
 	idtetrominosBag int
@@ -165,7 +164,7 @@ func main() {
 
 	var rect sdl.Rect
 	//var rects []sdl.Rect
-	
+
 	//--
 	tetrominosBag = make([]int, 14)
 	tetrominosBag[0] = 1
