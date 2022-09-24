@@ -237,7 +237,7 @@ func (ga *Game) NewTetromino() {
 	ga.curTetromino.x = 6
 	ga.curTetromino.y = 0
 	ga.curTetromino.y = -ga.curTetromino.MaxY()
-	ga.nextTetromino = ShapeNew(myRand.Intn(7)+1, NB_COLUMNS+3, 10)
+	ga.nextTetromino = ShapeNew(TetrisRandomizer(), NB_COLUMNS+3, 10)
 
 }
 

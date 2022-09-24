@@ -52,12 +52,14 @@ func HightScoreNew(userName string, scoreVal int) *HightScore {
 type ProcessEvents func() bool
 
 var (
-	cellSize      int
-	myRand        *rand.Rand
-	processEvents ProcessEvents
-	velY          int
-	tt_font       *ttf.Font
-	succes_sound  *mix.Chunk
+	cellSize        int
+	myRand          *rand.Rand
+	processEvents   ProcessEvents
+	velY            int
+	tt_font         *ttf.Font
+	succes_sound    *mix.Chunk
+	idtetrominosBag int
+	tetrominosBag   []int
 )
 
 func ComputeScore(nbLines int) int {
@@ -77,6 +79,31 @@ func ComputeScore(nbLines int) int {
 		score = 2000
 	}
 	return score
+}
+
+func TetrisRandomizer() int {
+
+	var (
+		iSrc int
+		ityp int
+	)
+
+	if idtetrominosBag < 14 {
+		ityp = tetrominosBag[idtetrominosBag]
+		idtetrominosBag += 1
+	} else {
+		//-- Shuttle bag
+		for i := 0; i < 14; i++ {
+			iSrc = myRand.Intn(14)
+			ityp = tetrominosBag[iSrc]
+			tetrominosBag[iSrc] = tetrominosBag[0]
+			tetrominosBag[0] = ityp
+		}
+		ityp = tetrominosBag[0]
+		idtetrominosBag = 1
+	}
+
+	return ityp
 }
 
 func main() {
@@ -138,6 +165,24 @@ func main() {
 
 	var rect sdl.Rect
 	//var rects []sdl.Rect
+	
+	//--
+	tetrominosBag = make([]int, 14)
+	tetrominosBag[0] = 1
+	tetrominosBag[1] = 2
+	tetrominosBag[2] = 3
+	tetrominosBag[3] = 4
+	tetrominosBag[4] = 5
+	tetrominosBag[5] = 6
+	tetrominosBag[6] = 7
+	tetrominosBag[7] = 1
+	tetrominosBag[8] = 2
+	tetrominosBag[9] = 3
+	tetrominosBag[10] = 4
+	tetrominosBag[11] = 5
+	tetrominosBag[12] = 6
+	tetrominosBag[13] = 7
+	idtetrominosBag = 14
 
 	cellSize = int(WIN_WIDTH / (NB_COLUMNS + 7))
 
