@@ -112,7 +112,7 @@ func main() {
 	mix.OpenAudio(44100, mix.DEFAULT_FORMAT, mix.DEFAULT_CHANNELS, 1024)
 	tetris_music, err := mix.LoadMUS(fullPathName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Load Music: %s\n", err)
+		fmt.Fprintf(os.Stderr, "Load Music : %s\n", err)
 		panic(err)
 	}
 	defer tetris_music.Free()
