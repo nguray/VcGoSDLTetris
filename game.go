@@ -449,7 +449,7 @@ func (ga *Game) ProcessEventsHightScores() bool {
 					ga.curMode = STANDBY
 					processEvents = ga.ProcessEventsStandBy
 				case sdl.K_RETURN:
-					ga.SaveHightScores("HightScores.txt")
+					ga.SaveHightScores("HighScores.txt")
 					ga.curMode = STANDBY
 					processEvents = ga.ProcessEventsStandBy
 				default:
