@@ -192,7 +192,7 @@ func main() {
 
 	game := GameNew()
 
-	game.LoadHightScores("HighScores.txt")
+	game.LoadHighScores("HighScores.txt")
 
 	game.curMode = STANDBY
 	processEvents = game.ProcessEventsStandBy

@@ -445,18 +445,20 @@ func (ga *Game) ProcessEventsHightScores() bool {
 						ga.hightScores[ga.idHighScore].name = ga.userName
 					}
 				case sdl.K_ESCAPE:
-					ga.SaveHightScores("HightScores.txt")
+					ga.SaveHighScores("HighScores.txt")
 					ga.curMode = STANDBY
 					processEvents = ga.ProcessEventsStandBy
 				case sdl.K_RETURN:
-					ga.SaveHightScores("HighScores.txt")
+					ga.SaveHighScores("HighScores.txt")
 					ga.curMode = STANDBY
 					processEvents = ga.ProcessEventsStandBy
 				default:
 					c := ga.getChar(keyCode)
 					if c != "" && ga.idHighScore >= 0 {
-						ga.userName += c
-						ga.hightScores[ga.idHighScore].name = ga.userName
+						if len(ga.userName) < 10 {
+							ga.userName += c
+							ga.hightScores[ga.idHighScore].name = ga.userName
+						}
 					}
 				}
 			}
@@ -465,7 +467,7 @@ func (ga *Game) ProcessEventsHightScores() bool {
 	return true
 }
 
-func (ga *Game) SaveHightScores(fileName string) {
+func (ga *Game) SaveHighScores(fileName string) {
 	//------------------------------------------------------
 
 	var (
@@ -490,12 +492,8 @@ func (ga *Game) SaveHightScores(fileName string) {
 
 }
 
-func (ga *Game) LoadHightScores(fileName string) {
+func (ga *Game) LoadHighScores(fileName string) {
 	//------------------------------------------------------
-
-	// var (
-	// 	nbL int = 0
-	// )
 
 	f, err := os.Open(fileName)
 
