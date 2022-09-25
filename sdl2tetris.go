@@ -211,25 +211,22 @@ func main() {
 		}
 
 		if !running {
-			if game.curScore > 0 {
+			//--
+			id := game.IsHightScore(game.curScore)
+
+			if id >= 0 {
 				//--
-				id := game.IsHightScore(game.curScore)
-
-				if id >= 0 {
-					//--
-					game.InsertHightScore(id, game.userName, game.curScore)
-					game.curMode = HIGHSCORES
-					processEvents = game.ProcessEventsHightScores
-					game.InitGame()
-					running = true
-				} else {
-					//--
-					game.InitGame()
-					game.curMode = STANDBY
-					processEvents = game.ProcessEventsStandBy
-
-				}
-
+				game.InsertHightScore(id, game.userName, game.curScore)
+				game.curMode = HIGHSCORES
+				processEvents = game.ProcessEventsHightScores
+				game.InitGame()
+				running = true
+			} else {
+				//--
+				game.InitGame()
+				game.curMode = STANDBY
+				processEvents = game.ProcessEventsStandBy
+				running = true
 			}
 
 		}
