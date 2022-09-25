@@ -25,7 +25,7 @@ type Game struct {
 	curTetromino  *Shape
 	nextTetromino *Shape
 	board         []int
-	hightScores   []HightScore
+	highScores    []HightScore
 	idHighScore   int
 	userName      string
 	tblKeyChars   []KeyChar
@@ -35,9 +35,9 @@ type Game struct {
 func GameNew() *Game {
 	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(myRand.Intn(7)+1,
 		NB_COLUMNS+3, 10), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1, "", make([]KeyChar, 1), false}
-	for i := 0; i < len(game.hightScores); i++ {
-		game.hightScores[i].name = "--------"
-		game.hightScores[i].score = 0
+	for i := 0; i < len(game.highScores); i++ {
+		game.highScores[i].name = "--------"
+		game.highScores[i].score = 0
 	}
 
 	game.tblKeyChars = append(game.tblKeyChars, KeyChar{keycode: sdl.K_a, c: "A"})
@@ -164,7 +164,7 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 
 	xCol0 := LEFT + cellSize
 	xCol1 := LEFT + (NB_COLUMNS/2+2)*cellSize
-	for _, h := range ga.hightScores {
+	for _, h := range ga.highScores {
 
 		surfName, err := tt_font.RenderUTF8Blended(h.name, sdl.Color{R: 255, G: 255, B: 0, A: 255})
 		if err == nil {
@@ -410,7 +410,7 @@ func (ga *Game) ProcessEventsPlay() bool {
 
 func (ga *Game) IsHightScore(newscore int) int {
 	//--------------------------------------------------
-	for i, v := range ga.hightScores {
+	for i, v := range ga.highScores {
 		if newscore > v.score {
 			return i
 		}
@@ -420,8 +420,8 @@ func (ga *Game) IsHightScore(newscore int) int {
 
 func (ga *Game) InsertHightScore(id int, name string, score int) {
 	//--------------------------------------------------
-	ga.hightScores = append(ga.hightScores[:id+1], ga.hightScores[id:]...)
-	ga.hightScores[id] = HightScore{name: name, score: score}
+	ga.highScores = append(ga.highScores[:id+1], ga.highScores[id:]...)
+	ga.highScores[id] = HightScore{name: name, score: score}
 	ga.idHighScore = id
 	ga.userName = name
 
@@ -442,7 +442,7 @@ func (ga *Game) ProcessEventsHightScores() bool {
 					sz := len(ga.userName)
 					if sz > 0 {
 						ga.userName = ga.userName[:sz-1]
-						ga.hightScores[ga.idHighScore].name = ga.userName
+						ga.highScores[ga.idHighScore].name = ga.userName
 					}
 				case sdl.K_ESCAPE:
 					ga.SaveHighScores("HighScores.txt")
@@ -457,7 +457,7 @@ func (ga *Game) ProcessEventsHightScores() bool {
 					if c != "" && ga.idHighScore >= 0 {
 						if len(ga.userName) < 10 {
 							ga.userName += c
-							ga.hightScores[ga.idHighScore].name = ga.userName
+							ga.highScores[ga.idHighScore].name = ga.userName
 						}
 					}
 				}
@@ -481,7 +481,7 @@ func (ga *Game) SaveHighScores(fileName string) {
 	defer f.Close()
 
 	for i := 0; i < 10; i++ {
-		h := ga.hightScores[i]
+		h := ga.highScores[i]
 		if h.name == "" {
 			h.name = "XXXX"
 		}
@@ -511,9 +511,9 @@ func (ga *Game) LoadHighScores(fileName string) {
 
 		wordBreakDown := strings.Fields(strLineVal)
 
-		ga.hightScores[nbL].name = wordBreakDown[0]
+		ga.highScores[nbL].name = wordBreakDown[0]
 		val, _ := strconv.ParseInt(wordBreakDown[1], 10, 32)
-		ga.hightScores[nbL].score = int(val)
+		ga.highScores[nbL].score = int(val)
 
 	}
 
