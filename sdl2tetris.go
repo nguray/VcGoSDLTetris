@@ -238,7 +238,6 @@ func main() {
 				elapsed := time.Since(start)
 				elapsedV := time.Since(startV)
 
-				//fAlreadyMoveH := false
 				milliSecond := elapsed.Milliseconds()
 				if milliSecond > 100 {
 					start = time.Now()
@@ -250,41 +249,33 @@ func main() {
 							game.curTetromino.x = backupPosX
 						}
 					}
-					//fAlreadyMoveH = true
 				}
 
 				if game.fDrop {
-					startV = time.Now()
-					game.curTetromino.y += 1
-					if game.curTetromino.HitGround(game.board) {
-						game.curTetromino.y -= 1
-						game.FreezeCurTetramino()
-						game.NewTetromino()
-						game.fDrop = false
-					} else if game.curTetromino.OutBoardLimit() {
-						game.curTetromino.y -= 1
-						game.FreezeCurTetramino()
-						game.NewTetromino()
-						game.fDrop = false
+					if elapsedV.Milliseconds() > 30 {
+						startV = time.Now()
+						game.curTetromino.y += 1
+						if game.curTetromino.HitGround(game.board) {
+							game.curTetromino.y -= 1
+							game.FreezeCurTetramino()
+							game.NewTetromino()
+							game.fDrop = false
+						} else if game.curTetromino.OutBoardLimit() {
+							game.curTetromino.y -= 1
+							game.FreezeCurTetramino()
+							game.NewTetromino()
+							game.fDrop = false
+						}
 					}
 
 				} else {
 
-					milliSecondV := elapsedV.Milliseconds()
 					var limitElapse int64 = 450
 					if game.fFastDown {
 						limitElapse = 100
 					}
-					if milliSecondV > limitElapse {
+					if elapsedV.Milliseconds() > limitElapse {
 						startV = time.Now()
-
-						// if !fAlreadyMoveH && game.velX != 0 {
-						// 	game.curTetromino.x += game.velX
-						// 	if game.curTetromino.HitGround(game.board) || game.curTetromino.OutBoardLimit() {
-						// 		//-- Undo Move
-						// 		game.curTetromino.x -= game.velX
-						// 	}
-						// }
 
 						game.nextTetromino.RotateRight()
 
