@@ -54,13 +54,13 @@ func HightScoreNew(userName string, scoreVal int) *HightScore {
 type ProcessEvents func() bool
 
 var (
-	cellSize        int
+	cellSize        int32
 	myRand          *rand.Rand
 	processEvents   ProcessEvents
 	tt_font         *ttf.Font
 	succes_sound    *mix.Chunk
 	idtetrominosBag int
-	tetrominosBag   []int
+	tetrominosBag   []int32
 )
 
 func ComputeScore(nbLines int) int {
@@ -82,11 +82,11 @@ func ComputeScore(nbLines int) int {
 	return score
 }
 
-func TetrisRandomizer() int {
+func TetrisRandomizer() int32 {
 
 	var (
-		iSrc int
-		ityp int
+		iSrc int32
+		ityp int32
 	)
 
 	if idtetrominosBag < 14 {
@@ -95,7 +95,7 @@ func TetrisRandomizer() int {
 	} else {
 		//-- Shuttle bag
 		for i := 0; i < 14; i++ {
-			iSrc = myRand.Intn(14)
+			iSrc = int32(myRand.Intn(14))
 			ityp = tetrominosBag[iSrc]
 			tetrominosBag[iSrc] = tetrominosBag[0]
 			tetrominosBag[0] = ityp
@@ -168,7 +168,7 @@ func main() {
 	//var rects []sdl.Rect
 
 	//--
-	tetrominosBag = make([]int, 14)
+	tetrominosBag = make([]int32, 14)
 	tetrominosBag[0] = 1
 	tetrominosBag[1] = 2
 	tetrominosBag[2] = 3
@@ -185,7 +185,7 @@ func main() {
 	tetrominosBag[13] = 7
 	idtetrominosBag = 14
 
-	cellSize = int(WIN_WIDTH / (NB_COLUMNS + 7))
+	cellSize = int32(WIN_WIDTH / (NB_COLUMNS + 7))
 
 	InitTetrominos()
 	myRand = rand.New(rand.NewSource(time.Now().UnixNano()))

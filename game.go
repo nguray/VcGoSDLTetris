@@ -17,7 +17,7 @@ type KeyChar struct {
 }
 
 type Game struct {
-	velX          int
+	velX          int32
 	fDrop         bool
 	fFastDown     bool
 	curMode       GameMode
@@ -33,7 +33,7 @@ type Game struct {
 }
 
 func GameNew() *Game {
-	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(myRand.Intn(7)+1,
+	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(int32(myRand.Intn(7)+1),
 		NB_COLUMNS+3, 10), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1, "", make([]KeyChar, 1), false}
 	for i := 0; i < len(game.highScores); i++ {
 		game.highScores[i].name = "--------"
@@ -105,10 +105,11 @@ func (ga *Game) DrawBoard(renderer *sdl.Renderer) {
 		rect sdl.Rect
 		x    int32
 		y    int32
+		l, c int32
 	)
 	a := cellSize - 2
-	for l := 0; l < NB_ROWS; l++ {
-		for c := 0; c < NB_COLUMNS; c++ {
+	for l = 0; l < NB_ROWS; l++ {
+		for c = 0; c < NB_COLUMNS; c++ {
 			v := ga.board[l*NB_COLUMNS+c]
 			if v != 0 {
 				x = int32(c*cellSize + LEFT + 1)
@@ -142,8 +143,8 @@ func (ga *Game) DrawScore(renderer *sdl.Renderer) {
 
 func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 	var (
-		x      int
-		y      int
+		x      int32
+		y      int32
 		width  int32
 		height int32
 	)
@@ -154,10 +155,10 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 		textureTitle, err := renderer.CreateTextureFromSurface(surfTitle)
 		if err == nil {
 			_, _, width, height, _ = textureTitle.Query()
-			x = LEFT + (NB_COLUMNS/2)*cellSize - int(width/2)
+			x = LEFT + (NB_COLUMNS/2)*cellSize - int32(width/2)
 			renderer.Copy(textureTitle, nil, &sdl.Rect{X: int32(x), Y: int32(y), W: width, H: height})
 			textureTitle.Destroy()
-			y += int(3 * height)
+			y += int32(3 * height)
 		}
 		surfTitle.Free()
 	}
@@ -190,15 +191,15 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 		}
 
 		//--
-		y += int(height + 8)
+		y += int32(height + 8)
 
 	}
 }
 
 func (ga *Game) DrawStandBy(renderer *sdl.Renderer) {
 	var (
-		x int
-		y int
+		x int32
+		y int32
 	)
 	y = TOP + (NB_ROWS/4)*cellSize
 	strTitle := fmt.Sprintf("GoLang Tetris in SDL2")
@@ -207,10 +208,10 @@ func (ga *Game) DrawStandBy(renderer *sdl.Renderer) {
 		textureTitle, err := renderer.CreateTextureFromSurface(surfTitle)
 		if err == nil {
 			_, _, width, height, _ := textureTitle.Query()
-			x = LEFT + (NB_COLUMNS/2)*cellSize - int(width/2)
+			x = LEFT + (NB_COLUMNS/2)*cellSize - int32(width/2)
 			renderer.Copy(textureTitle, nil, &sdl.Rect{X: int32(x), Y: int32(y), W: width, H: height})
 			textureTitle.Destroy()
-			y += int(2*height + 4)
+			y += int32(2*height + 4)
 		}
 		surfTitle.Free()
 	}
@@ -221,7 +222,7 @@ func (ga *Game) DrawStandBy(renderer *sdl.Renderer) {
 		textureMsg, err := renderer.CreateTextureFromSurface(surfMsg)
 		if err == nil {
 			_, _, width, height, _ := textureMsg.Query()
-			x = LEFT + (NB_COLUMNS/2)*cellSize - int(width/2)
+			x = LEFT + (NB_COLUMNS/2)*cellSize - int32(width/2)
 			renderer.Copy(textureMsg, nil, &sdl.Rect{X: int32(x), Y: int32(y), W: width, H: height})
 			textureMsg.Destroy()
 			//y += int(height + 4)
@@ -248,7 +249,7 @@ func (ga *Game) InitGame() {
 		ga.board[i] = 0
 	}
 	ga.curTetromino = nil
-	ga.nextTetromino = ShapeNew(myRand.Intn(7)+1, NB_COLUMNS+3, 10)
+	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), NB_COLUMNS+3, 10)
 
 }
 
@@ -269,7 +270,7 @@ func (ga *Game) FreezeCurTetramino() {
 			x := v.x + ga.curTetromino.x
 			y := v.y + ga.curTetromino.y
 			if x >= 0 && x < NB_COLUMNS && y >= 0 && y < NB_ROWS {
-				ga.board[y*NB_COLUMNS+x] = ga.curTetromino.typ
+				ga.board[y*NB_COLUMNS+x] = int(ga.curTetromino.typ)
 			}
 		}
 		//--

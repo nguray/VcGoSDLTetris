@@ -5,8 +5,8 @@ import (
 )
 
 type Vector2i struct {
-	x int
-	y int
+	x int32
+	y int32
 }
 
 var (
@@ -15,9 +15,9 @@ var (
 )
 
 type Shape struct {
-	typ   int
-	x     int
-	y     int
+	typ   int32
+	x     int32
+	y     int32
 	v     [4]Vector2i
 	color sdl.Color
 }
@@ -46,7 +46,7 @@ func InitTetrominos() {
 
 }
 
-func ShapeNew(typ, x, y int) *Shape {
+func ShapeNew(typ, x, y int32) *Shape {
 
 	shape := &Shape{typ, x, y, [4]Vector2i{}, sdl.Color{R: 0xFF, G: 0, B: 0, A: 0xFF}}
 	shape.InitGfx()
@@ -57,7 +57,7 @@ func ShapeNew(typ, x, y int) *Shape {
 
 func (sh *Shape) InitGfx() {
 
-	offSet := sh.typ * 4
+	offSet := int(sh.typ * 4)
 	for i := 0; i < 4; i++ {
 		sh.v[i].x = tetrominos[i+offSet].x
 		sh.v[i].y = tetrominos[i+offSet].y
@@ -68,7 +68,7 @@ func (sh *Shape) InitGfx() {
 func (sh *Shape) Draw(renderer *sdl.Renderer) {
 
 	var (
-		l, t int
+		l, t int32
 		rect sdl.Rect
 	)
 
@@ -87,7 +87,7 @@ func (sh *Shape) Draw(renderer *sdl.Renderer) {
 
 func (sh *Shape) RotateLeft() {
 	if sh.typ != 5 {
-		var x, y int
+		var x, y int32
 		for i := 0; i < 4; i++ {
 			x = sh.v[i].y
 			y = -sh.v[i].x
@@ -99,7 +99,7 @@ func (sh *Shape) RotateLeft() {
 
 func (sh *Shape) RotateRight() {
 	if sh.typ != 5 {
-		var x, y int
+		var x, y int32
 		for i := 0; i < 4; i++ {
 			x = -sh.v[i].y
 			y = sh.v[i].x
@@ -136,12 +136,12 @@ func (sh *Shape) HitGround(board []int) bool {
 	return false
 }
 
-func (sh *Shape) MinX() int {
+func (sh *Shape) MinX() int32 {
 	var (
-		x    int
-		minX int
+		x    int32
+		minX int32
 	)
-	minX = sh.v[0].x
+	minX = sh.v[0].x + sh.y
 	for i := 1; i < 4; i++ {
 		x = sh.v[i].x + sh.x
 		if x < minX {
@@ -151,12 +151,12 @@ func (sh *Shape) MinX() int {
 	return minX
 }
 
-func (sh *Shape) MaxX() int {
+func (sh *Shape) MaxX() int32 {
 	var (
-		x    int
-		maxX int
+		x    int32
+		maxX int32
 	)
-	maxX = sh.v[0].x
+	maxX = sh.v[0].x + sh.y
 	for i := 1; i < 4; i++ {
 		x = sh.v[i].x + sh.x
 		if x > maxX {
@@ -166,9 +166,9 @@ func (sh *Shape) MaxX() int {
 	return maxX
 }
 
-func (sh *Shape) MaxY() int {
-	var y int
-	maxY := sh.v[0].y
+func (sh *Shape) MaxY() int32 {
+	var y int32
+	maxY := sh.v[0].y + sh.y
 	for i := 1; i < 4; i++ {
 		y = sh.v[i].y + sh.y
 		if y > maxY {
