@@ -156,7 +156,8 @@ func main() {
 	defer succes_sound.Free()
 	mix.Volume(-1, 10)
 
-	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED|sdl.RENDERER_PRESENTVSYNC)
+	//renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
 		//return 2
@@ -199,6 +200,24 @@ func main() {
 
 	start := time.Now()
 	startV := start
+
+	game.curTetromino = game.nextTetromino
+	game.curTetromino.x = 5
+	game.curTetromino.y = 5*cellSize + 1
+
+	for c := 0; c < NB_COLUMNS; c++ {
+		game.board[15*NB_COLUMNS+c] = 1
+	}
+
+	for r := 0; r < NB_ROWS; r++ {
+		if r != 4 {
+			game.board[r*NB_COLUMNS+10] = 2
+		}
+	}
+
+	// for r := 0; r < NB_ROWS; r++ {
+	// 	game.board[r*NB_COLUMNS+1] = 2
+	// }
 
 	running := true
 	for running {
@@ -270,7 +289,7 @@ func main() {
 
 				} else {
 
-					var limitElapse int64 = 450
+					var limitElapse int64 = 400
 					if game.fFastDown {
 						limitElapse = 100
 					}
@@ -315,6 +334,22 @@ func main() {
 					}
 				}
 
+			}
+		} else {
+			elapsedV := time.Since(startV)
+			if elapsedV.Milliseconds() > 100 {
+				startV = time.Now()
+				game.curTetromino.x += 1
+				if game.curTetromino.OutBoardLimit1() {
+					game.curTetromino.x -= 1
+
+				}
+				idHit := game.curTetromino.HitGround1(game.board)
+				if idHit >= 0 {
+					game.curTetromino.x -= 1
+					game.board[idHit] = 1
+
+				}
 			}
 		}
 

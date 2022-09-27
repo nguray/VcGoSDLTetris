@@ -74,11 +74,13 @@ func (sh *Shape) Draw(renderer *sdl.Renderer) {
 
 	renderer.SetDrawColor(sh.color.R, sh.color.G, sh.color.B, sh.color.A)
 	a := int32(cellSize - 2)
+
+	y := sh.y + TOP + 1
+
 	for _, v := range sh.v {
 		l = v.x + sh.x
-		t = v.y + sh.y
 		if t >= 0 {
-			rect = sdl.Rect{X: int32(l*cellSize + LEFT + 1), Y: int32(t*cellSize + TOP + 1), W: a, H: a}
+			rect = sdl.Rect{X: int32(l*cellSize + LEFT + 1), Y: int32(v.y*cellSize + y), W: a, H: a}
 			renderer.FillRect(&rect)
 		}
 	}
@@ -121,6 +123,19 @@ func (sh *Shape) OutBoardLimit() bool {
 	return false
 }
 
+func (sh *Shape) OutBoardLimit1() bool {
+	//--------------------------------------------------
+	iy := int32((sh.y + cellSize) / cellSize)
+	for _, v := range sh.v {
+		x := v.x + sh.x
+		y := v.y + iy
+		if (x < 0) || x > (NB_COLUMNS-1) || (y > NB_ROWS-1) {
+			return true
+		}
+	}
+	return false
+}
+
 func (sh *Shape) HitGround(board []int) bool {
 	//--------------------------------------------------
 	for _, v := range sh.v {
@@ -134,6 +149,43 @@ func (sh *Shape) HitGround(board []int) bool {
 		}
 	}
 	return false
+}
+
+func (sh *Shape) HitGround1(board []int) int32 {
+	var (
+		iy int32
+	)
+	//--------------------------------------------------
+
+	//-- Top
+	iy = int32(sh.y / cellSize)
+	for _, v := range sh.v {
+		x := v.x + sh.x
+		y := v.y + iy
+		if (x >= 0) && x < NB_COLUMNS && (y >= 0) && (y < NB_ROWS) {
+			iHit := y*NB_COLUMNS + x
+			v := board[iHit]
+			if v != 0 {
+				return iHit
+			}
+		}
+	}
+
+	//-- Bottom
+	iy = int32((sh.y + cellSize - 1) / cellSize)
+	for _, v := range sh.v {
+		x := v.x + sh.x
+		y := v.y + iy
+		if (x >= 0) && x < NB_COLUMNS && (y >= 0) && (y < NB_ROWS) {
+			iHit := y*NB_COLUMNS + x
+			v := board[iHit]
+			if v != 0 {
+				return iHit
+			}
+		}
+	}
+
+	return -1
 }
 
 func (sh *Shape) MinX() int32 {
