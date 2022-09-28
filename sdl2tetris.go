@@ -165,7 +165,7 @@ func main() {
 	}
 	defer renderer.Destroy()
 
-	//var rect sdl.Rect
+	var rect sdl.Rect
 	//var rects []sdl.Rect
 
 	//--
@@ -198,8 +198,9 @@ func main() {
 	game.curMode = STANDBY
 	processEvents = game.ProcessEventsStandBy
 
-	start := time.Now()
-	startV := start
+	startH := time.Now()
+	startV := startH
+	startR := startH
 
 	// game.curTetromino = game.nextTetromino
 	// game.curTetromino.x = 5
@@ -224,6 +225,10 @@ func main() {
 
 		renderer.SetDrawColor(48, 48, 255, 255)
 		renderer.Clear()
+
+		rect = sdl.Rect{X: int32(LEFT), Y: int32(TOP), W: int32(cellSize * NB_COLUMNS), H: int32(cellSize * NB_ROWS)}
+		renderer.SetDrawColor(10, 10, 100, 255)
+		renderer.FillRect(&rect)
 
 		//-- Process current mode Events
 		running = processEvents(renderer)
@@ -257,8 +262,9 @@ func main() {
 
 			if game.curTetromino != nil {
 
-				elapsed := time.Since(start)
+				elapsed := time.Since(startH)
 				elapsedV := time.Since(startV)
+				elapsedR := time.Since(startR)
 
 				milliSecond := elapsed.Milliseconds()
 				if milliSecond > 100 {
@@ -270,7 +276,7 @@ func main() {
 						} else if game.curTetromino.OutBoardLimit1() {
 							game.curTetromino.x -= game.velX
 						} else {
-							start = time.Now()
+							startH = time.Now()
 						}
 
 					}
@@ -284,12 +290,10 @@ func main() {
 							game.curTetromino.y++
 							idHit := game.curTetromino.HitGround1(renderer, game.board)
 							if idHit >= 0 {
-								//game.board[idHit] = 0
 								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
 								game.fDrop = false
-
 							} else if game.curTetromino.OutBoardLimit1() {
 								game.curTetromino.y--
 								game.FreezeCurTetramino1()
@@ -298,7 +302,7 @@ func main() {
 							}
 							if game.fDrop {
 								if game.velX != 0 {
-									elapsed := time.Since(start)
+									elapsed := time.Since(startH)
 									if elapsed.Milliseconds() > 100 {
 										game.curTetromino.x += game.velX
 										idHit := game.curTetromino.HitGround1(renderer, game.board)
@@ -307,7 +311,7 @@ func main() {
 										} else if game.curTetromino.OutBoardLimit1() {
 											game.curTetromino.x -= game.velX
 										} else {
-											start = time.Now()
+											startH = time.Now()
 										}
 									}
 								}
@@ -323,8 +327,6 @@ func main() {
 					}
 					if elapsedV.Milliseconds() > limitElapse {
 						startV = time.Now()
-
-						//game.nextTetromino.RotateRight()
 
 						for iOffSet := 0; iOffSet < 3; iOffSet++ {
 							//-- Move down to check
@@ -346,7 +348,7 @@ func main() {
 							}
 							if fMove {
 								if game.velX != 0 {
-									elapsed := time.Since(start)
+									elapsed := time.Since(startH)
 									if elapsed.Milliseconds() > 100 {
 										game.curTetromino.x += game.velX
 										idHit := game.curTetromino.HitGround1(renderer, game.board)
@@ -355,7 +357,7 @@ func main() {
 										} else if game.curTetromino.OutBoardLimit1() {
 											game.curTetromino.x -= game.velX
 										} else {
-											start = time.Now()
+											startH = time.Now()
 										}
 									}
 								}
@@ -387,28 +389,15 @@ func main() {
 					}
 				}
 
+				if elapsedR.Milliseconds() > 500 {
+					startR = time.Now()
+					game.nextTetromino.RotateRight()
+
+				}
+
 			}
-			// } else {
-			// 	elapsedV := time.Since(startV)
-			// 	if elapsedV.Milliseconds() > 100 {
-			// 		startV = time.Now()
-			// 		game.curTetromino.y += 4
-			// 		if game.curTetromino.OutBoardLimit1() {
-			// 			game.curTetromino.y -= 4
 
-			// 		}
-			// 		idHit := game.curTetromino.HitGround1(game.board)
-			// 		if idHit >= 0 {
-			// 			game.curTetromino.y -= 4
-			// 			game.board[idHit] = 2
-
-			// 		}
-			// 	}
 		}
-
-		//rect = sdl.Rect{X: int32(LEFT), Y: int32(TOP), W: int32(cellSize * NB_COLUMNS), H: int32(cellSize * NB_ROWS)}
-		//renderer.SetDrawColor(10, 10, 100, 255)
-		//renderer.FillRect(&rect)
 
 		// rects = []sdl.Rect{{500, 300, 100, 100}, {200, 300, 200, 200}}
 		// renderer.SetDrawColor(255, 0, 255, 255)

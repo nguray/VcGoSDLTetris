@@ -33,8 +33,8 @@ type Game struct {
 }
 
 func GameNew() *Game { //int32(myRand.Intn(7)+1)
-	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(7,
-		NB_COLUMNS+3, 10), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1, "", make([]KeyChar, 1), false}
+	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(int32(myRand.Intn(7)+1),
+		NB_COLUMNS+3, 10*cellSize), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1, "", make([]KeyChar, 1), false}
 	for i := 0; i < len(game.highScores); i++ {
 		game.highScores[i].name = "--------"
 		game.highScores[i].score = 0
@@ -238,7 +238,7 @@ func (ga *Game) NewTetromino() {
 	ga.curTetromino.x = 6
 	ga.curTetromino.y = 0
 	ga.curTetromino.y = -ga.curTetromino.MaxY()
-	ga.nextTetromino = ShapeNew(TetrisRandomizer(), NB_COLUMNS+3, 10)
+	ga.nextTetromino = ShapeNew(TetrisRandomizer(), NB_COLUMNS+3, 10*cellSize)
 
 }
 
@@ -249,7 +249,7 @@ func (ga *Game) InitGame() {
 		ga.board[i] = 0
 	}
 	ga.curTetromino = nil
-	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), NB_COLUMNS+3, 10)
+	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), NB_COLUMNS+3, 10*cellSize)
 
 }
 
