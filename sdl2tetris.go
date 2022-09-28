@@ -317,7 +317,7 @@ func main() {
 
 				} else {
 
-					var limitElapse int64 = 30
+					var limitElapse int64 = 25
 					if game.fFastDown {
 						limitElapse = 10
 					}
@@ -326,7 +326,7 @@ func main() {
 
 						//game.nextTetromino.RotateRight()
 
-						for iOffSet := 0; iOffSet < 4; iOffSet++ {
+						for iOffSet := 0; iOffSet < 3; iOffSet++ {
 							//-- Move down to check
 							game.curTetromino.y++
 							fMove := true

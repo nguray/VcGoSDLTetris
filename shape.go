@@ -111,18 +111,6 @@ func (sh *Shape) RotateRight() {
 	}
 }
 
-// func (sh *Shape) OutBoardLimit() bool {
-// 	//--------------------------------------------------
-// 	for _, v := range sh.v {
-// 		x := v.x + sh.x
-// 		y := v.y + sh.y
-// 		if (x < 0) || x > (NB_COLUMNS-1) || (y > NB_ROWS-1) {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
-
 func (sh *Shape) OutBoardLimit1() bool {
 	//--------------------------------------------------
 
@@ -139,21 +127,6 @@ func (sh *Shape) OutBoardLimit1() bool {
 	}
 	return false
 }
-
-// func (sh *Shape) HitGround(board []int) bool {
-// 	//--------------------------------------------------
-// 	for _, v := range sh.v {
-// 		x := v.x + sh.x
-// 		y := v.y + sh.y
-// 		if (x >= 0) && x < NB_COLUMNS && (y >= 0) && (y < NB_ROWS) {
-// 			v := board[y*NB_COLUMNS+x]
-// 			if v != 0 {
-// 				return true
-// 			}
-// 		}
-// 	}
-// 	return false
-// }
 
 func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int) int32 {
 	var (
