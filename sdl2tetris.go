@@ -39,9 +39,8 @@ const (
 )
 
 type HightScore struct {
-	name    string
-	score   int
-	fSelect bool
+	name  string
+	score int
 }
 
 func HightScoreNew(userName string, scoreVal int) *HightScore {
