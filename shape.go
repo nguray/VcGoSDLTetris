@@ -123,9 +123,13 @@ func (sh *Shape) RotateRight() {
 // 	return false
 // }
 
-func (sh *Shape) OutBoardLimit1(iOffSet int32) bool {
+func (sh *Shape) OutBoardLimit1() bool {
 	//--------------------------------------------------
-	iy := int32((sh.y + cellSize + iOffSet) / cellSize)
+
+	//-- Offset to have the bottom
+	b := sh.y + cellSize - 1
+
+	iy := int32(b / cellSize)
 	for _, v := range sh.v {
 		x := v.x + sh.x
 		y := v.y + iy
@@ -151,14 +155,14 @@ func (sh *Shape) OutBoardLimit1(iOffSet int32) bool {
 // 	return false
 // }
 
-func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int, iOffSet int32) int32 {
+func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int) int32 {
 	var (
 		iy int32
 		//rect sdl.Rect
 	)
 	//--------------------------------------------------
 
-	t := sh.y + iOffSet - 2
+	t := sh.y
 
 	//renderer.SetDrawColor(255, 0, 0, 255)
 	//-- Top
@@ -183,7 +187,7 @@ func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int, iOffSet int32) 
 
 	//renderer.SetDrawColor(0, 0, 255, 255)
 	//-- Bottom
-	t += cellSize
+	t += cellSize - 1
 	iy = int32(t / cellSize)
 	for _, v := range sh.v {
 		x := v.x + sh.x

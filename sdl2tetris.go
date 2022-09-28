@@ -262,14 +262,15 @@ func main() {
 
 				milliSecond := elapsed.Milliseconds()
 				if milliSecond > 100 {
-					start = time.Now()
 					if game.velX != 0 {
 						game.curTetromino.x += game.velX
-						idHit := game.curTetromino.HitGround1(renderer, game.board, int32(0))
+						idHit := game.curTetromino.HitGround1(renderer, game.board)
 						if idHit >= 0 {
 							game.curTetromino.x -= game.velX
-						} else if game.curTetromino.OutBoardLimit1(int32(0)) {
+						} else if game.curTetromino.OutBoardLimit1() {
 							game.curTetromino.x -= game.velX
+						} else {
+							start = time.Now()
 						}
 
 					}
@@ -278,22 +279,39 @@ func main() {
 				if game.fDrop {
 					if elapsedV.Milliseconds() > 10 {
 						startV = time.Now()
-						for iOffSet := 1; iOffSet <= 4; iOffSet++ {
-							idHit := game.curTetromino.HitGround1(renderer, game.board, int32(iOffSet))
+						for iOffSet := 0; iOffSet < 6; iOffSet++ {
+							//-- Move down to check
+							game.curTetromino.y++
+							idHit := game.curTetromino.HitGround1(renderer, game.board)
 							if idHit >= 0 {
 								//game.board[idHit] = 0
+								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
 								game.fDrop = false
 
-							} else if game.curTetromino.OutBoardLimit1(int32(iOffSet)) {
+							} else if game.curTetromino.OutBoardLimit1() {
+								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
 								game.fDrop = false
 							}
-						}
-						if game.fDrop {
-							game.curTetromino.y += 4
+							if game.fDrop {
+								if game.velX != 0 {
+									elapsed := time.Since(start)
+									if elapsed.Milliseconds() > 100 {
+										game.curTetromino.x += game.velX
+										idHit := game.curTetromino.HitGround1(renderer, game.board)
+										if idHit >= 0 {
+											game.curTetromino.x -= game.velX
+										} else if game.curTetromino.OutBoardLimit1() {
+											game.curTetromino.x -= game.velX
+										} else {
+											start = time.Now()
+										}
+									}
+								}
+							}
 						}
 					}
 
@@ -307,21 +325,41 @@ func main() {
 						startV = time.Now()
 
 						//game.nextTetromino.RotateRight()
-						fContinue := true
-						idHit := game.curTetromino.HitGround1(renderer, game.board, int32(1))
-						if idHit >= 0 {
-							game.FreezeCurTetramino1()
-							game.NewTetromino()
-							fContinue = false
-							//game.board[idHit] = 0
-						} else if game.curTetromino.OutBoardLimit1(int32(1)) {
-							game.FreezeCurTetramino1()
-							game.NewTetromino()
-							fContinue = false
-						}
 
-						if fContinue {
-							game.curTetromino.y += 1
+						for iOffSet := 0; iOffSet < 4; iOffSet++ {
+							//-- Move down to check
+							game.curTetromino.y++
+							fMove := true
+							idHit := game.curTetromino.HitGround1(renderer, game.board)
+							if idHit >= 0 {
+								//game.board[idHit] = 0
+								game.curTetromino.y--
+								game.FreezeCurTetramino1()
+								game.NewTetromino()
+								fMove = false
+
+							} else if game.curTetromino.OutBoardLimit1() {
+								game.curTetromino.y--
+								game.FreezeCurTetramino1()
+								game.NewTetromino()
+								fMove = false
+							}
+							if fMove {
+								if game.velX != 0 {
+									elapsed := time.Since(start)
+									if elapsed.Milliseconds() > 100 {
+										game.curTetromino.x += game.velX
+										idHit := game.curTetromino.HitGround1(renderer, game.board)
+										if idHit >= 0 {
+											game.curTetromino.x -= game.velX
+										} else if game.curTetromino.OutBoardLimit1() {
+											game.curTetromino.x -= game.velX
+										} else {
+											start = time.Now()
+										}
+									}
+								}
+							}
 						}
 
 						//-- Check Game Over
