@@ -17,24 +17,28 @@ type KeyChar struct {
 }
 
 type Game struct {
-	velX          int32
-	fDrop         bool
-	fFastDown     bool
-	curMode       GameMode
-	curScore      int
-	curTetromino  *Shape
-	nextTetromino *Shape
-	board         []int
-	highScores    []HightScore
-	idHighScore   int
-	userName      string
-	tblKeyChars   []KeyChar
-	fQuitGame     bool
+	velX                  int32
+	fDrop                 bool
+	fFastDown             bool
+	curMode               GameMode
+	curScore              int
+	curTetromino          *Shape
+	nextTetromino         *Shape
+	board                 []int
+	highScores            []HightScore
+	idHighScore           int
+	userName              string
+	tblKeyChars           []KeyChar
+	fQuitGame             bool
+	horizontalMove        int
+	horizontalStartColumn int
+	fPause                bool
 }
 
 func GameNew() *Game { //int32(myRand.Intn(7)+1)
 	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(int32(myRand.Intn(7)+1),
-		NB_COLUMNS+3, 10*cellSize), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1, "", make([]KeyChar, 1), false}
+		(NB_COLUMNS+3)*cellSize, 10*cellSize), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1,
+		"", make([]KeyChar, 1), false, 0, 0, false}
 	for i := 0; i < len(game.highScores); i++ {
 		game.highScores[i].name = "--------"
 		game.highScores[i].score = 0
@@ -235,10 +239,10 @@ func (ga *Game) DrawStandBy(renderer *sdl.Renderer) {
 func (ga *Game) NewTetromino() {
 	//--------------------------------------------------
 	ga.curTetromino = ga.nextTetromino
-	ga.curTetromino.x = 6
+	ga.curTetromino.x = 6 * cellSize
 	ga.curTetromino.y = 0
 	ga.curTetromino.y = -ga.curTetromino.MaxY()
-	ga.nextTetromino = ShapeNew(TetrisRandomizer(), NB_COLUMNS+3, 10*cellSize)
+	ga.nextTetromino = ShapeNew(TetrisRandomizer(), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 }
 
@@ -249,7 +253,7 @@ func (ga *Game) InitGame() {
 		ga.board[i] = 0
 	}
 	ga.curTetromino = nil
-	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), NB_COLUMNS+3, 10*cellSize)
+	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 }
 
@@ -263,32 +267,13 @@ func (ga *Game) IsGameOver() bool {
 	return false
 }
 
-func (ga *Game) FreezeCurTetramino() {
-	//--------------------------------------------------
-	if ga.curTetromino != nil {
-		for _, v := range ga.curTetromino.v {
-			x := v.x + ga.curTetromino.x
-			y := v.y + ga.curTetromino.y
-			if x >= 0 && x < NB_COLUMNS && y >= 0 && y < NB_ROWS {
-				ga.board[y*NB_COLUMNS+x] = int(ga.curTetromino.typ)
-			}
-		}
-		//--
-		nbLines := ga.EraseCompletedLines()
-		if nbLines > 0 {
-			ga.curScore += ComputeScore(nbLines)
-			succes_sound.Play(-1, 0)
-		}
-
-	}
-}
-
 func (ga *Game) FreezeCurTetramino1() {
 	//--------------------------------------------------
 	if ga.curTetromino != nil {
+		ix := int32((ga.curTetromino.x + 1) / cellSize)
 		iy := int32((ga.curTetromino.y + 1) / cellSize)
 		for _, v := range ga.curTetromino.v {
-			x := v.x + ga.curTetromino.x
+			x := v.x + ix
 			y := v.y + iy
 			if x >= 0 && x < NB_COLUMNS && y >= 0 && y < NB_ROWS {
 				ga.board[y*NB_COLUMNS+x] = int(ga.curTetromino.typ)
@@ -369,6 +354,8 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 			//keys := ""
 			if t.State == sdl.PRESSED && t.Repeat == 0 {
 				switch keyCode {
+				case sdl.K_p:
+					ga.fPause = true
 				case sdl.K_LEFT:
 					ga.velX = -1
 				case sdl.K_RIGHT:
@@ -383,14 +370,14 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 							//-- Undo Rotate
 							ga.curTetromino.RotateRight()
 
-						} else if ga.curTetromino.OutBoardLimit1() {
+						} else if ga.curTetromino.CheckBottomLimit(renderer) {
 							max_pos_x := ga.curTetromino.MaxX()
 							if max_pos_x >= NB_COLUMNS {
 								dx := max_pos_x - (NB_COLUMNS - 1)
-								ga.curTetromino.x -= dx
+								ga.curTetromino.x -= dx * cellSize
 								idHit := ga.curTetromino.HitGround1(renderer, ga.board)
 								if idHit >= 0 {
-									ga.curTetromino.x += dx
+									ga.curTetromino.x += dx * cellSize
 									//-- Undo Rotate
 									ga.curTetromino.RotateRight()
 								}
@@ -398,10 +385,10 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 								min_pos_x := ga.curTetromino.MinX()
 								if min_pos_x < 0 {
 									dx := min_pos_x
-									ga.curTetromino.x -= dx
+									ga.curTetromino.x -= dx * cellSize
 									idHit := ga.curTetromino.HitGround1(renderer, ga.board)
 									if idHit >= 0 {
-										ga.curTetromino.x += dx
+										ga.curTetromino.x += dx * cellSize
 										//-- Undo Rotate
 										ga.curTetromino.RotateRight()
 									}
@@ -423,6 +410,8 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 				}
 			} else if t.State == sdl.RELEASED {
 				switch keyCode {
+				case sdl.K_p:
+					ga.fPause = false
 				case sdl.K_LEFT:
 					ga.velX = 0
 				case sdl.K_RIGHT:
