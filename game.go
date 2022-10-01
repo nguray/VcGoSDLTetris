@@ -241,7 +241,7 @@ func (ga *Game) NewTetromino() {
 	ga.curTetromino = ga.nextTetromino
 	ga.curTetromino.x = 6 * cellSize
 	ga.curTetromino.y = 0
-	ga.curTetromino.y = -ga.curTetromino.MaxY()
+	ga.curTetromino.y = -ga.curTetromino.MaxY1() * cellSize
 	ga.nextTetromino = ShapeNew(TetrisRandomizer(), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 }
@@ -370,10 +370,11 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 							//-- Undo Rotate
 							ga.curTetromino.RotateRight()
 
-						} else if ga.curTetromino.CheckBottomLimit(renderer) {
-							max_pos_x := ga.curTetromino.MaxX()
+						} else if ga.curTetromino.CheckRightBoardLimit(renderer) {
+							x := ga.curTetromino.MaxX1()*cellSize + ga.curTetromino.x
+							max_pos_x := x / cellSize
 							if max_pos_x >= NB_COLUMNS {
-								dx := max_pos_x - (NB_COLUMNS - 1)
+								dx := max_pos_x - NB_COLUMNS + 1
 								ga.curTetromino.x -= dx * cellSize
 								idHit := ga.curTetromino.HitGround1(renderer, ga.board)
 								if idHit >= 0 {
@@ -381,20 +382,20 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 									//-- Undo Rotate
 									ga.curTetromino.RotateRight()
 								}
-							} else {
-								min_pos_x := ga.curTetromino.MinX()
-								if min_pos_x < 0 {
-									dx := min_pos_x
-									ga.curTetromino.x -= dx * cellSize
-									idHit := ga.curTetromino.HitGround1(renderer, ga.board)
-									if idHit >= 0 {
-										ga.curTetromino.x += dx * cellSize
-										//-- Undo Rotate
-										ga.curTetromino.RotateRight()
-									}
+							}
+						} else if ga.curTetromino.CheckLeftBoardLimit(renderer) {
+							x := ga.curTetromino.MinX1()*cellSize + ga.curTetromino.x
+							min_pos_x := x / cellSize
+							if min_pos_x < 0 {
+								dx := min_pos_x
+								ga.curTetromino.x -= dx * cellSize
+								idHit := ga.curTetromino.HitGround1(renderer, ga.board)
+								if idHit >= 0 {
+									ga.curTetromino.x += dx * cellSize
+									//-- Undo Rotate
+									ga.curTetromino.RotateRight()
 								}
 							}
-
 						}
 
 					}
