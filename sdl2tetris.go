@@ -277,7 +277,6 @@ func main() {
 
 							if game.horizontalMove < 0 {
 								if game.curTetromino.CheckLeftBoardLimit(renderer) {
-									println(game.horizontalMove)
 									game.curTetromino.x -= int32(game.horizontalMove)
 									game.horizontalMove = 0
 									break
@@ -291,7 +290,6 @@ func main() {
 								}
 							} else if game.horizontalMove > 0 {
 								if game.curTetromino.CheckRightBoardLimit(renderer) {
-									println(game.horizontalMove)
 									game.curTetromino.x -= int32(game.horizontalMove)
 									game.horizontalMove = 0
 									break

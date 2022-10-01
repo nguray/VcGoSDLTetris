@@ -120,9 +120,7 @@ func (sh *Shape) CheckRightBoardLimit(renderer *sdl.Renderer) bool {
 
 func (sh *Shape) CheckBottomLimit(renderer *sdl.Renderer) bool {
 	//--------------------------------------------------
-
 	b := sh.MaxY1()*cellSize + cellSize + sh.y
-	println(b)
 	return b > NB_ROWS*cellSize
 }
 
