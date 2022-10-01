@@ -261,25 +261,9 @@ func main() {
 
 			if game.curTetromino != nil {
 
-				elapsed := time.Since(startH)
+				//elapsed := time.Since(startH)
 				elapsedV := time.Since(startV)
 				elapsedR := time.Since(startR)
-
-				milliSecond := elapsed.Milliseconds()
-				if milliSecond > 100 {
-					if game.velX != 0 {
-						game.curTetromino.x += game.velX
-						idHit := game.curTetromino.HitGround1(renderer, game.board)
-						if idHit >= 0 {
-							game.curTetromino.x -= game.velX
-						} else if game.curTetromino.OutBoardLimit1() {
-							game.curTetromino.x -= game.velX
-						} else {
-							startH = time.Now()
-						}
-
-					}
-				}
 
 				if game.fDrop {
 					if elapsedV.Milliseconds() > 10 {
@@ -357,6 +341,7 @@ func main() {
 											game.curTetromino.x -= game.velX
 										} else {
 											startH = time.Now()
+											break
 										}
 									}
 								}
