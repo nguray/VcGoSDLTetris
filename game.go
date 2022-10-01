@@ -346,7 +346,6 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
 			ga.fQuitGame = true
-			println("Quit")
 			return false
 		case *sdl.KeyboardEvent:
 			keyCode := t.Keysym.Sym
@@ -355,7 +354,7 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 			if t.State == sdl.PRESSED && t.Repeat == 0 {
 				switch keyCode {
 				case sdl.K_p:
-					ga.fPause = true
+					ga.fPause = !ga.fPause
 				case sdl.K_LEFT:
 					ga.velX = -1
 				case sdl.K_RIGHT:
@@ -411,8 +410,6 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 				}
 			} else if t.State == sdl.RELEASED {
 				switch keyCode {
-				case sdl.K_p:
-					ga.fPause = false
 				case sdl.K_LEFT:
 					ga.velX = 0
 				case sdl.K_RIGHT:

@@ -269,7 +269,7 @@ func main() {
 
 				if game.horizontalMove != 0 {
 					elapsed := time.Since(startH)
-					if elapsed.Milliseconds() > 10 {
+					if elapsed.Milliseconds() > 15 {
 						startH = time.Now()
 						for iOffSet := 0; iOffSet < int(3); iOffSet++ {
 
@@ -336,7 +336,7 @@ func main() {
 							if game.fDrop {
 								if game.velX != 0 {
 									elapsed := time.Since(startH)
-									if elapsed.Milliseconds() > 70 {
+									if elapsed.Milliseconds() > 20 {
 										startH = time.Now()
 										game.horizontalMove = int(game.velX)
 										game.horizontalStartColumn = int(game.curTetromino.Column())
@@ -375,7 +375,7 @@ func main() {
 							if fMove {
 								if game.velX != 0 {
 									elapsed := time.Since(startH)
-									if elapsed.Milliseconds() > 10 {
+									if elapsed.Milliseconds() > 15 {
 
 										game.curTetromino.x += int32(game.velX)
 
