@@ -295,6 +295,7 @@ func main() {
 											game.curTetromino.x -= game.velX
 										} else {
 											startH = time.Now()
+											break
 										}
 									}
 								}
