@@ -272,7 +272,7 @@ func main() {
 					if elapsed.Milliseconds() > 20 {
 						startH = time.Now()
 
-						for iOffSet := 0; iOffSet < int(3); iOffSet++ {
+						for iOffSet := 0; iOffSet < int(4); iOffSet++ {
 
 							game.curTetromino.x += int32(game.horizontalMove)
 
