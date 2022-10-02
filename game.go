@@ -370,31 +370,32 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 							ga.curTetromino.RotateRight()
 
 						} else if ga.curTetromino.CheckRightBoardLimit(renderer) {
-							x := ga.curTetromino.MaxX1()*cellSize + ga.curTetromino.x
-							max_pos_x := x / cellSize
-							if max_pos_x >= NB_COLUMNS {
-								dx := max_pos_x - NB_COLUMNS + 1
-								ga.curTetromino.x -= dx * cellSize
-								idHit := ga.curTetromino.HitGround1(renderer, ga.board)
-								if idHit >= 0 {
-									ga.curTetromino.x += dx * cellSize
-									//-- Undo Rotate
-									ga.curTetromino.RotateRight()
-								}
+							backupX := ga.curTetromino.x
+							//-- Move tetromino inside board
+							for ga.curTetromino.CheckRightBoardLimit(renderer) {
+								ga.curTetromino.x--
 							}
+							idHit := ga.curTetromino.HitGround1(renderer, ga.board)
+							if idHit >= 0 {
+								ga.curTetromino.x = backupX
+								//-- Undo Rotate
+								ga.curTetromino.RotateRight()
+							}
+
 						} else if ga.curTetromino.CheckLeftBoardLimit(renderer) {
-							x := ga.curTetromino.MinX1()*cellSize + ga.curTetromino.x
-							min_pos_x := x / cellSize
-							if min_pos_x < 0 {
-								dx := min_pos_x
-								ga.curTetromino.x -= dx * cellSize
-								idHit := ga.curTetromino.HitGround1(renderer, ga.board)
-								if idHit >= 0 {
-									ga.curTetromino.x += dx * cellSize
-									//-- Undo Rotate
-									ga.curTetromino.RotateRight()
-								}
+
+							backupX := ga.curTetromino.x
+							//-- Move tetromino inside board
+							for ga.curTetromino.CheckLeftBoardLimit(renderer) {
+								ga.curTetromino.x++
 							}
+							idHit := ga.curTetromino.HitGround1(renderer, ga.board)
+							if idHit >= 0 {
+								ga.curTetromino.x = backupX
+								//-- Undo Rotate
+								ga.curTetromino.RotateRight()
+							}
+
 						}
 
 					}
