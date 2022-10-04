@@ -33,12 +33,14 @@ type Game struct {
 	horizontalMove        int
 	horizontalStartColumn int
 	fPause                bool
+	nbCompledLines        int
+	iColorHighScore       int
 }
 
 func GameNew() *Game { //int32(myRand.Intn(7)+1)
 	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(int32(myRand.Intn(7)+1),
 		(NB_COLUMNS+3)*cellSize, 10*cellSize), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1,
-		"", make([]KeyChar, 1), false, 0, 0, false}
+		"", make([]KeyChar, 1), false, 0, 0, false, 0, 0}
 	for i := 0; i < len(game.highScores); i++ {
 		game.highScores[i].name = "--------"
 		game.highScores[i].score = 0
@@ -151,6 +153,7 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 		y      int32
 		width  int32
 		height int32
+		color  sdl.Color
 	)
 	y = TOP + cellSize
 	strTitle := fmt.Sprintf("HIGH SCORES")
@@ -169,9 +172,20 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 
 	xCol0 := LEFT + cellSize
 	xCol1 := LEFT + (NB_COLUMNS/2+2)*cellSize
-	for _, h := range ga.highScores {
+	for i, h := range ga.highScores {
 
-		surfName, err := tt_font.RenderUTF8Blended(h.name, sdl.Color{R: 255, G: 255, B: 0, A: 255})
+		if ga.idHighScore == i {
+			if (ga.iColorHighScore % 2) > 0 {
+				color = sdl.Color{R: 255, G: 255, B: 0, A: 255}
+			} else {
+				color = sdl.Color{R: 155, G: 155, B: 0, A: 255}
+
+			}
+		} else {
+			color = sdl.Color{R: 255, G: 255, B: 0, A: 255}
+		}
+
+		surfName, err := tt_font.RenderUTF8Blended(h.name, color)
 		if err == nil {
 			textureName, err := renderer.CreateTextureFromSurface(surfName)
 			if err == nil {
@@ -183,7 +197,7 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 		}
 
 		strScore := fmt.Sprintf("%06d", h.score)
-		surfScore, err := tt_font.RenderUTF8Blended(strScore, sdl.Color{R: 255, G: 255, B: 0, A: 255})
+		surfScore, err := tt_font.RenderUTF8Blended(strScore, color)
 		if err == nil {
 			textureScore, err := renderer.CreateTextureFromSurface(surfScore)
 			if err == nil {
@@ -280,16 +294,15 @@ func (ga *Game) FreezeCurTetramino1() {
 			}
 		}
 		//--
-		nbLines := ga.EraseCompletedLines()
-		if nbLines > 0 {
-			ga.curScore += ComputeScore(nbLines)
-			succes_sound.Play(-1, 0)
+		ga.nbCompledLines = ga.ComputeCompletedLines()
+		if ga.nbCompledLines > 0 {
+			ga.curScore += ComputeScore(ga.nbCompledLines)
 		}
 
 	}
 }
 
-func (ga *Game) EraseCompletedLines() int {
+func (ga *Game) ComputeCompletedLines() int {
 	//--------------------------------------------------
 	nbLines := 0
 	fCompleted := false
@@ -303,16 +316,34 @@ func (ga *Game) EraseCompletedLines() int {
 		}
 		if fCompleted {
 			nbLines++
+		}
+	}
+	//fmt.Println("Nbre Erased Lines ", nbLines)
+	return nbLines
+}
+
+func (ga *Game) EraseFirstCompletedLine() {
+	//--------------------------------------------------
+	fCompleted := false
+	for r := 0; r < NB_ROWS; r++ {
+		fCompleted = true
+		for c := 0; c < NB_COLUMNS; c++ {
+			if ga.board[r*NB_COLUMNS+c] == 0 {
+				fCompleted = false
+				break
+			}
+		}
+		if fCompleted {
 			//-- Décaler d'une ligne le plateau
 			for r1 := r; r1 > 0; r1-- {
 				for c1 := 0; c1 < NB_COLUMNS; c1++ {
 					ga.board[r1*NB_COLUMNS+c1] = ga.board[(r1-1)*NB_COLUMNS+c1]
 				}
 			}
+			return
 		}
 	}
 	//fmt.Println("Nbre Erased Lines ", nbLines)
-	return nbLines
 }
 
 func (ga *Game) ProcessEventsStandBy(renderer *sdl.Renderer) bool {

@@ -201,24 +201,6 @@ func main() {
 	startV := startH
 	startR := startH
 
-	// game.curTetromino = game.nextTetromino
-	// game.curTetromino.x = 5
-	// game.curTetromino.y = 5 * cellSize
-
-	// for c := 0; c < NB_COLUMNS; c++ {
-	// 	game.board[15*NB_COLUMNS+c] = 1
-	// }
-
-	// for r := 0; r < NB_ROWS; r++ {
-	// 	if r != 4 {
-	// 		game.board[r*NB_COLUMNS+10] = 2
-	// 	}
-	// }
-
-	// for r := 0; r < NB_ROWS; r++ {
-	// 	game.board[r*NB_COLUMNS+1] = 2
-	// }
-
 	running := true
 	for running {
 
@@ -267,7 +249,15 @@ func main() {
 				elapsedV := time.Since(startV)
 				elapsedR := time.Since(startR)
 
-				if game.horizontalMove != 0 {
+				if game.nbCompledLines > 0 {
+					if elapsedV.Milliseconds() > 250 {
+						startV = time.Now()
+						game.nbCompledLines--
+						game.EraseFirstCompletedLine()
+						succes_sound.Play(-1, 0)
+					}
+
+				} else if game.horizontalMove != 0 {
 					elapsed := time.Since(startH)
 					if elapsed.Milliseconds() > 20 {
 						startH = time.Now()
@@ -505,6 +495,11 @@ func main() {
 		if game.curMode == STANDBY {
 			game.DrawStandBy(renderer)
 		} else if game.curMode == HIGHSCORES {
+			elapsedV := time.Since(startV)
+			if elapsedV.Milliseconds() > 200 {
+				startV = time.Now()
+				game.iColorHighScore++
+			}
 			game.DrawHightScores(renderer)
 		}
 
