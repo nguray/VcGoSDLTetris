@@ -265,7 +265,7 @@ func main() {
 						for iOffSet := 0; iOffSet < int(4); iOffSet++ {
 
 							backupX := game.curTetromino.x
-							game.curTetromino.x += int32(game.horizontalMove)
+							game.curTetromino.x += game.horizontalMove
 
 							if game.horizontalMove < 0 {
 								if game.curTetromino.CheckLeftBoardLimit(renderer) {
