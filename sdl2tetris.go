@@ -39,9 +39,8 @@ const (
 )
 
 type HightScore struct {
-	name    string
-	score   int
-	fSelect bool
+	name  string
+	score int
 }
 
 func HightScoreNew(userName string, scoreVal int) *HightScore {
@@ -51,7 +50,7 @@ func HightScoreNew(userName string, scoreVal int) *HightScore {
 	return score
 }
 
-type ProcessEvents func() bool
+type ProcessEvents func(renderer *sdl.Renderer) bool
 
 var (
 	cellSize        int32
@@ -156,7 +155,8 @@ func main() {
 	defer succes_sound.Free()
 	mix.Volume(-1, 10)
 
-	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED|sdl.RENDERER_PRESENTVSYNC)
+	//renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
 		//return 2
@@ -197,14 +197,23 @@ func main() {
 	game.curMode = STANDBY
 	processEvents = game.ProcessEventsStandBy
 
-	start := time.Now()
-	startV := start
+	startH := time.Now()
+	startV := startH
+	startR := startH
 
 	running := true
 	for running {
 
+		//-- Draw Background
+		renderer.SetDrawColor(48, 48, 255, 255)
+		renderer.Clear()
+
+		rect = sdl.Rect{X: int32(LEFT), Y: int32(TOP), W: int32(cellSize * NB_COLUMNS), H: int32(cellSize * NB_ROWS)}
+		renderer.SetDrawColor(10, 10, 100, 255)
+		renderer.FillRect(&rect)
+
 		//-- Process current mode Events
-		running = processEvents()
+		running = processEvents(renderer)
 
 		if game.fQuitGame {
 			break
@@ -214,6 +223,7 @@ func main() {
 			//--
 			id := game.IsHightScore(game.curScore)
 
+			//-- Manage Game Over and User Escape
 			if id >= 0 {
 				//--
 				game.InsertHightScore(id, game.userName, game.curScore)
@@ -231,63 +241,200 @@ func main() {
 
 		}
 
+		//-- Game Mode Update States
 		if game.curMode == PLAY {
 
-			if game.curTetromino != nil {
+			if game.curTetromino != nil && !game.fPause {
 
-				elapsed := time.Since(start)
 				elapsedV := time.Since(startV)
+				elapsedR := time.Since(startR)
 
-				milliSecond := elapsed.Milliseconds()
-				if milliSecond > 100 {
-					start = time.Now()
-					if game.velX != 0 {
-						backupPosX := game.curTetromino.x
-						game.curTetromino.x += game.velX
-						if game.curTetromino.HitGround(game.board) || game.curTetromino.OutBoardLimit() {
-							//-- Undo Move
-							game.curTetromino.x = backupPosX
+				if game.nbCompledLines > 0 {
+					if elapsedV.Milliseconds() > 250 {
+						startV = time.Now()
+						game.nbCompledLines--
+						game.EraseFirstCompletedLine()
+						succes_sound.Play(-1, 0)
+					}
+
+				} else if game.horizontalMove != 0 {
+					elapsed := time.Since(startH)
+					if elapsed.Milliseconds() > 20 {
+						startH = time.Now()
+
+						for iOffSet := 0; iOffSet < int(4); iOffSet++ {
+
+							game.curTetromino.x += int32(game.horizontalMove)
+
+							if game.horizontalMove < 0 {
+								if game.curTetromino.CheckLeftBoardLimit(renderer) {
+									game.curTetromino.x -= int32(game.horizontalMove)
+									game.horizontalMove = 0
+									break
+								} else {
+									idHit := game.curTetromino.HitGround1(renderer, game.board)
+									if idHit >= 0 {
+										game.curTetromino.x -= int32(game.horizontalMove)
+										game.horizontalMove = 0
+										break
+									}
+								}
+							} else if game.horizontalMove > 0 {
+								if game.curTetromino.CheckRightBoardLimit(renderer) {
+									game.curTetromino.x -= int32(game.horizontalMove)
+									game.horizontalMove = 0
+									break
+								} else {
+									idHit := game.curTetromino.HitGround1(renderer, game.board)
+									if idHit >= 0 {
+										game.curTetromino.x -= int32(game.horizontalMove)
+										game.horizontalMove = 0
+										break
+									}
+								}
+
+							}
+
+							if game.horizontalMove != 0 {
+								if game.horizontalStartColumn != int(game.curTetromino.Column()) {
+									game.curTetromino.x -= int32(game.horizontalMove)
+									game.horizontalMove = 0
+									startH = time.Now()
+									break
+								}
+							}
+
 						}
 					}
-				}
 
-				if game.fDrop {
-					if elapsedV.Milliseconds() > 30 {
+				} else if game.fDrop {
+
+					if elapsedV.Milliseconds() > 10 {
 						startV = time.Now()
-						game.curTetromino.y += 1
-						if game.curTetromino.HitGround(game.board) {
-							game.curTetromino.y -= 1
-							game.FreezeCurTetramino()
-							game.NewTetromino()
-							game.fDrop = false
-						} else if game.curTetromino.OutBoardLimit() {
-							game.curTetromino.y -= 1
-							game.FreezeCurTetramino()
-							game.NewTetromino()
-							game.fDrop = false
+						for iOffSet := 0; iOffSet < 6; iOffSet++ {
+							//-- Move down to check
+							game.curTetromino.y++
+							idHit := game.curTetromino.HitGround1(renderer, game.board)
+							if idHit >= 0 {
+								game.curTetromino.y--
+								game.FreezeCurTetramino1()
+								game.NewTetromino()
+								game.fDrop = false
+							} else if game.curTetromino.CheckBottomLimit(renderer) {
+								game.curTetromino.y--
+								game.FreezeCurTetramino1()
+								game.NewTetromino()
+								game.fDrop = false
+							}
+							if game.fDrop {
+								if game.velX != 0 {
+									elapsed := time.Since(startH)
+
+									if elapsed.Milliseconds() > 20 {
+
+										game.curTetromino.x += int32(game.velX)
+
+										if game.velX < 0 {
+											if game.curTetromino.CheckLeftBoardLimit(renderer) {
+												game.curTetromino.x -= int32(game.velX)
+											} else {
+												idHit := game.curTetromino.HitGround1(renderer, game.board)
+												if idHit >= 0 {
+													game.curTetromino.x -= int32(game.velX)
+												} else {
+													startH = time.Now()
+													game.horizontalMove = int(game.velX)
+													game.horizontalStartColumn = int(game.curTetromino.Column())
+													break
+												}
+											}
+										} else if game.velX > 0 {
+											if game.curTetromino.CheckRightBoardLimit(renderer) {
+												game.curTetromino.x -= int32(game.velX)
+											} else {
+												idHit := game.curTetromino.HitGround1(renderer, game.board)
+												if idHit >= 0 {
+													game.curTetromino.x -= int32(game.velX)
+												} else {
+													startH = time.Now()
+													game.horizontalMove = int(game.velX)
+													game.horizontalStartColumn = int(game.curTetromino.Column())
+													break
+												}
+											}
+
+										}
+									}
+
+								}
+							}
 						}
 					}
 
 				} else {
 
-					var limitElapse int64 = 450
+					var limitElapse int64 = 25
 					if game.fFastDown {
-						limitElapse = 100
+						limitElapse = 10
 					}
 					if elapsedV.Milliseconds() > limitElapse {
 						startV = time.Now()
 
-						game.nextTetromino.RotateRight()
+						for iOffSet := 0; iOffSet < 3; iOffSet++ {
+							//-- Move down to check
+							game.curTetromino.y++
+							fMove := true
+							idHit := game.curTetromino.HitGround1(renderer, game.board)
+							if idHit >= 0 {
+								game.curTetromino.y--
+								game.FreezeCurTetramino1()
+								game.NewTetromino()
+								fMove = false
 
-						game.curTetromino.y += 1
-						if game.curTetromino.HitGround(game.board) {
-							game.curTetromino.y -= 1
-							game.FreezeCurTetramino()
-							game.NewTetromino()
-						} else if game.curTetromino.OutBoardLimit() {
-							game.curTetromino.y -= 1
-							game.FreezeCurTetramino()
-							game.NewTetromino()
+							} else if game.curTetromino.CheckBottomLimit(renderer) {
+								game.curTetromino.y--
+								game.FreezeCurTetramino1()
+								game.NewTetromino()
+								fMove = false
+							}
+							if fMove {
+								if game.velX != 0 {
+									elapsed := time.Since(startH)
+									if elapsed.Milliseconds() > 15 {
+										startH = time.Now()
+										game.curTetromino.x += int32(game.velX)
+
+										if game.velX < 0 {
+											if game.curTetromino.CheckLeftBoardLimit(renderer) {
+												game.curTetromino.x -= int32(game.velX)
+											} else {
+												idHit := game.curTetromino.HitGround1(renderer, game.board)
+												if idHit >= 0 {
+													game.curTetromino.x -= int32(game.velX)
+												} else {
+													game.horizontalMove = int(game.velX)
+													game.horizontalStartColumn = int(game.curTetromino.Column())
+													break
+												}
+											}
+										} else if game.velX > 0 {
+											if game.curTetromino.CheckRightBoardLimit(renderer) {
+												game.curTetromino.x -= int32(game.velX)
+											} else {
+												idHit := game.curTetromino.HitGround1(renderer, game.board)
+												if idHit >= 0 {
+													game.curTetromino.x -= int32(game.velX)
+												} else {
+													game.horizontalMove = int(game.velX)
+													game.horizontalStartColumn = int(game.curTetromino.Column())
+													break
+												}
+											}
+
+										}
+									}
+								}
+							}
 						}
 
 						//-- Check Game Over
@@ -315,19 +462,22 @@ func main() {
 					}
 				}
 
+				if elapsedR.Milliseconds() > 500 {
+					startR = time.Now()
+					game.nextTetromino.RotateRight()
+
+				}
+
 			}
+
 		}
-
-		renderer.SetDrawColor(48, 48, 255, 255)
-		renderer.Clear()
-
-		rect = sdl.Rect{X: int32(LEFT), Y: int32(TOP), W: int32(cellSize * NB_COLUMNS), H: int32(cellSize * NB_ROWS)}
-		renderer.SetDrawColor(10, 10, 100, 255)
-		renderer.FillRect(&rect)
 
 		// rects = []sdl.Rect{{500, 300, 100, 100}, {200, 300, 200, 200}}
 		// renderer.SetDrawColor(255, 0, 255, 255)
 		// renderer.FillRects(rects)
+
+		//------------------------------------------------------------
+		//-- Draw Game
 
 		//--
 		game.DrawBoard(renderer)
@@ -345,6 +495,11 @@ func main() {
 		if game.curMode == STANDBY {
 			game.DrawStandBy(renderer)
 		} else if game.curMode == HIGHSCORES {
+			elapsedV := time.Since(startV)
+			if elapsedV.Milliseconds() > 200 {
+				startV = time.Now()
+				game.iColorHighScore++
+			}
 			game.DrawHightScores(renderer)
 		}
 

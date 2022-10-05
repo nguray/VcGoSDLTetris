@@ -17,24 +17,30 @@ type KeyChar struct {
 }
 
 type Game struct {
-	velX          int32
-	fDrop         bool
-	fFastDown     bool
-	curMode       GameMode
-	curScore      int
-	curTetromino  *Shape
-	nextTetromino *Shape
-	board         []int
-	highScores    []HightScore
-	idHighScore   int
-	userName      string
-	tblKeyChars   []KeyChar
-	fQuitGame     bool
+	velX                  int32
+	fDrop                 bool
+	fFastDown             bool
+	curMode               GameMode
+	curScore              int
+	curTetromino          *Shape
+	nextTetromino         *Shape
+	board                 []int
+	highScores            []HightScore
+	idHighScore           int
+	userName              string
+	tblKeyChars           []KeyChar
+	fQuitGame             bool
+	horizontalMove        int
+	horizontalStartColumn int
+	fPause                bool
+	nbCompledLines        int
+	iColorHighScore       int
 }
 
-func GameNew() *Game {
+func GameNew() *Game { //int32(myRand.Intn(7)+1)
 	game := &Game{0, false, false, STANDBY, 0, nil, ShapeNew(int32(myRand.Intn(7)+1),
-		NB_COLUMNS+3, 10), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1, "", make([]KeyChar, 1), false}
+		(NB_COLUMNS+3)*cellSize, 10*cellSize), make([]int, NB_ROWS*NB_COLUMNS), make([]HightScore, 10), -1,
+		"", make([]KeyChar, 1), false, 0, 0, false, 0, 0}
 	for i := 0; i < len(game.highScores); i++ {
 		game.highScores[i].name = "--------"
 		game.highScores[i].score = 0
@@ -147,6 +153,7 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 		y      int32
 		width  int32
 		height int32
+		color  sdl.Color
 	)
 	y = TOP + cellSize
 	strTitle := fmt.Sprintf("HIGH SCORES")
@@ -165,9 +172,20 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 
 	xCol0 := LEFT + cellSize
 	xCol1 := LEFT + (NB_COLUMNS/2+2)*cellSize
-	for _, h := range ga.highScores {
+	for i, h := range ga.highScores {
 
-		surfName, err := tt_font.RenderUTF8Blended(h.name, sdl.Color{R: 255, G: 255, B: 0, A: 255})
+		if ga.idHighScore == i {
+			if (ga.iColorHighScore % 2) > 0 {
+				color = sdl.Color{R: 255, G: 255, B: 0, A: 255}
+			} else {
+				color = sdl.Color{R: 155, G: 155, B: 0, A: 255}
+
+			}
+		} else {
+			color = sdl.Color{R: 255, G: 255, B: 0, A: 255}
+		}
+
+		surfName, err := tt_font.RenderUTF8Blended(h.name, color)
 		if err == nil {
 			textureName, err := renderer.CreateTextureFromSurface(surfName)
 			if err == nil {
@@ -179,7 +197,7 @@ func (ga *Game) DrawHightScores(renderer *sdl.Renderer) {
 		}
 
 		strScore := fmt.Sprintf("%06d", h.score)
-		surfScore, err := tt_font.RenderUTF8Blended(strScore, sdl.Color{R: 255, G: 255, B: 0, A: 255})
+		surfScore, err := tt_font.RenderUTF8Blended(strScore, color)
 		if err == nil {
 			textureScore, err := renderer.CreateTextureFromSurface(surfScore)
 			if err == nil {
@@ -235,10 +253,10 @@ func (ga *Game) DrawStandBy(renderer *sdl.Renderer) {
 func (ga *Game) NewTetromino() {
 	//--------------------------------------------------
 	ga.curTetromino = ga.nextTetromino
-	ga.curTetromino.x = 6
+	ga.curTetromino.x = 6 * cellSize
 	ga.curTetromino.y = 0
-	ga.curTetromino.y = -ga.curTetromino.MaxY()
-	ga.nextTetromino = ShapeNew(TetrisRandomizer(), NB_COLUMNS+3, 10)
+	ga.curTetromino.y = -ga.curTetromino.MaxY1() * cellSize
+	ga.nextTetromino = ShapeNew(TetrisRandomizer(), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 }
 
@@ -249,7 +267,7 @@ func (ga *Game) InitGame() {
 		ga.board[i] = 0
 	}
 	ga.curTetromino = nil
-	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), NB_COLUMNS+3, 10)
+	ga.nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 }
 
@@ -263,27 +281,28 @@ func (ga *Game) IsGameOver() bool {
 	return false
 }
 
-func (ga *Game) FreezeCurTetramino() {
+func (ga *Game) FreezeCurTetramino1() {
 	//--------------------------------------------------
 	if ga.curTetromino != nil {
+		ix := int32((ga.curTetromino.x + 1) / cellSize)
+		iy := int32((ga.curTetromino.y + 1) / cellSize)
 		for _, v := range ga.curTetromino.v {
-			x := v.x + ga.curTetromino.x
-			y := v.y + ga.curTetromino.y
+			x := v.x + ix
+			y := v.y + iy
 			if x >= 0 && x < NB_COLUMNS && y >= 0 && y < NB_ROWS {
 				ga.board[y*NB_COLUMNS+x] = int(ga.curTetromino.typ)
 			}
 		}
 		//--
-		nbLines := ga.EraseCompletedLines()
-		if nbLines > 0 {
-			ga.curScore += ComputeScore(nbLines)
-			succes_sound.Play(-1, 0)
+		ga.nbCompledLines = ga.ComputeCompletedLines()
+		if ga.nbCompledLines > 0 {
+			ga.curScore += ComputeScore(ga.nbCompledLines)
 		}
 
 	}
 }
 
-func (ga *Game) EraseCompletedLines() int {
+func (ga *Game) ComputeCompletedLines() int {
 	//--------------------------------------------------
 	nbLines := 0
 	fCompleted := false
@@ -297,19 +316,37 @@ func (ga *Game) EraseCompletedLines() int {
 		}
 		if fCompleted {
 			nbLines++
-			//-- Décaler d'une ligne le plateau
-			for r1 := r; r1 > 0; r1-- {
-				for c1 := 0; c1 < NB_COLUMNS; c1++ {
-					ga.board[r1*NB_COLUMNS+c1] = ga.board[(r1-1)*NB_COLUMNS+c1]
-				}
-			}
 		}
 	}
 	//fmt.Println("Nbre Erased Lines ", nbLines)
 	return nbLines
 }
 
-func (ga *Game) ProcessEventsStandBy() bool {
+func (ga *Game) EraseFirstCompletedLine() {
+	//--------------------------------------------------
+	fCompleted := false
+	for r := 0; r < NB_ROWS; r++ {
+		fCompleted = true
+		for c := 0; c < NB_COLUMNS; c++ {
+			if ga.board[r*NB_COLUMNS+c] == 0 {
+				fCompleted = false
+				break
+			}
+		}
+		if fCompleted {
+			//-- Décaler d'une ligne le plateau
+			for r1 := r; r1 > 0; r1-- {
+				for c1 := 0; c1 < NB_COLUMNS; c1++ {
+					ga.board[r1*NB_COLUMNS+c1] = ga.board[(r1-1)*NB_COLUMNS+c1]
+				}
+			}
+			return
+		}
+	}
+	//fmt.Println("Nbre Erased Lines ", nbLines)
+}
+
+func (ga *Game) ProcessEventsStandBy(renderer *sdl.Renderer) bool {
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
@@ -335,12 +372,11 @@ func (ga *Game) ProcessEventsStandBy() bool {
 	return true
 }
 
-func (ga *Game) ProcessEventsPlay() bool {
+func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
 			ga.fQuitGame = true
-			println("Quit")
 			return false
 		case *sdl.KeyboardEvent:
 			keyCode := t.Keysym.Sym
@@ -348,6 +384,8 @@ func (ga *Game) ProcessEventsPlay() bool {
 			//keys := ""
 			if t.State == sdl.PRESSED && t.Repeat == 0 {
 				switch keyCode {
+				case sdl.K_p:
+					ga.fPause = !ga.fPause
 				case sdl.K_LEFT:
 					ga.velX = -1
 				case sdl.K_RIGHT:
@@ -355,32 +393,42 @@ func (ga *Game) ProcessEventsPlay() bool {
 				case sdl.K_UP:
 					if ga.curTetromino != nil {
 						ga.curTetromino.RotateLeft()
-						if ga.curTetromino.HitGround(ga.board) {
+
+						idHit := ga.curTetromino.HitGround1(renderer, ga.board)
+
+						if idHit >= 0 {
 							//-- Undo Rotate
 							ga.curTetromino.RotateRight()
-						} else if ga.curTetromino.OutBoardLimit() {
-							max_pos_x := ga.curTetromino.MaxX()
-							if max_pos_x >= NB_COLUMNS {
-								dx := max_pos_x - (NB_COLUMNS - 1)
-								ga.curTetromino.x -= dx
-								if ga.curTetromino.HitGround(ga.board) {
-									ga.curTetromino.x += dx
-									//-- Undo Rotate
-									ga.curTetromino.RotateRight()
-								}
-							} else {
-								min_pos_x := ga.curTetromino.MinX()
-								if min_pos_x < 0 {
-									dx := min_pos_x
-									ga.curTetromino.x -= dx
-									if ga.curTetromino.HitGround(ga.board) {
-										ga.curTetromino.x += dx
-										//-- Undo Rotate
-										ga.curTetromino.RotateRight()
-									}
-								}
+
+						} else if ga.curTetromino.CheckRightBoardLimit(renderer) {
+							backupX := ga.curTetromino.x
+							//-- Move tetromino inside board
+							for ga.curTetromino.CheckRightBoardLimit(renderer) {
+								ga.curTetromino.x--
 							}
+							idHit := ga.curTetromino.HitGround1(renderer, ga.board)
+							if idHit >= 0 {
+								ga.curTetromino.x = backupX
+								//-- Undo Rotate
+								ga.curTetromino.RotateRight()
+							}
+
+						} else if ga.curTetromino.CheckLeftBoardLimit(renderer) {
+
+							backupX := ga.curTetromino.x
+							//-- Move tetromino inside board
+							for ga.curTetromino.CheckLeftBoardLimit(renderer) {
+								ga.curTetromino.x++
+							}
+							idHit := ga.curTetromino.HitGround1(renderer, ga.board)
+							if idHit >= 0 {
+								ga.curTetromino.x = backupX
+								//-- Undo Rotate
+								ga.curTetromino.RotateRight()
+							}
+
 						}
+
 					}
 				case sdl.K_DOWN:
 					ga.fFastDown = true
@@ -428,7 +476,7 @@ func (ga *Game) InsertHightScore(id int, name string, score int) {
 
 }
 
-func (ga *Game) ProcessEventsHightScores() bool {
+func (ga *Game) ProcessEventsHightScores(renderer *sdl.Renderer) bool {
 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
