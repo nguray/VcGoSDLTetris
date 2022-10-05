@@ -264,30 +264,31 @@ func main() {
 
 						for iOffSet := 0; iOffSet < int(4); iOffSet++ {
 
+							backupX := game.curTetromino.x
 							game.curTetromino.x += int32(game.horizontalMove)
 
 							if game.horizontalMove < 0 {
 								if game.curTetromino.CheckLeftBoardLimit(renderer) {
-									game.curTetromino.x -= int32(game.horizontalMove)
+									game.curTetromino.x = backupX
 									game.horizontalMove = 0
 									break
 								} else {
 									idHit := game.curTetromino.HitGround1(renderer, game.board)
 									if idHit >= 0 {
-										game.curTetromino.x -= int32(game.horizontalMove)
+										game.curTetromino.x = backupX
 										game.horizontalMove = 0
 										break
 									}
 								}
 							} else if game.horizontalMove > 0 {
 								if game.curTetromino.CheckRightBoardLimit(renderer) {
-									game.curTetromino.x -= int32(game.horizontalMove)
+									game.curTetromino.x = backupX
 									game.horizontalMove = 0
 									break
 								} else {
 									idHit := game.curTetromino.HitGround1(renderer, game.board)
 									if idHit >= 0 {
-										game.curTetromino.x -= int32(game.horizontalMove)
+										game.curTetromino.x = backupX
 										game.horizontalMove = 0
 										break
 									}
@@ -297,7 +298,7 @@ func main() {
 
 							if game.horizontalMove != 0 {
 								if game.horizontalStartColumn != int(game.curTetromino.Column()) {
-									game.curTetromino.x -= int32(game.horizontalMove)
+									game.curTetromino.x = backupX
 									game.horizontalMove = 0
 									startH = time.Now()
 									break
@@ -332,32 +333,33 @@ func main() {
 
 									if elapsed.Milliseconds() > 20 {
 
-										game.curTetromino.x += int32(game.velX)
+										backupX := game.curTetromino.x
+										game.curTetromino.x += game.velX
 
 										if game.velX < 0 {
 											if game.curTetromino.CheckLeftBoardLimit(renderer) {
-												game.curTetromino.x -= int32(game.velX)
+												game.curTetromino.x = backupX
 											} else {
 												idHit := game.curTetromino.HitGround1(renderer, game.board)
 												if idHit >= 0 {
-													game.curTetromino.x -= int32(game.velX)
+													game.curTetromino.x = backupX
 												} else {
 													startH = time.Now()
-													game.horizontalMove = int(game.velX)
+													game.horizontalMove = game.velX
 													game.horizontalStartColumn = int(game.curTetromino.Column())
 													break
 												}
 											}
 										} else if game.velX > 0 {
 											if game.curTetromino.CheckRightBoardLimit(renderer) {
-												game.curTetromino.x -= int32(game.velX)
+												game.curTetromino.x = backupX
 											} else {
 												idHit := game.curTetromino.HitGround1(renderer, game.board)
 												if idHit >= 0 {
-													game.curTetromino.x -= int32(game.velX)
+													game.curTetromino.x = backupX
 												} else {
 													startH = time.Now()
-													game.horizontalMove = int(game.velX)
+													game.horizontalMove = game.velX
 													game.horizontalStartColumn = int(game.curTetromino.Column())
 													break
 												}
@@ -402,30 +404,32 @@ func main() {
 									elapsed := time.Since(startH)
 									if elapsed.Milliseconds() > 15 {
 										startH = time.Now()
-										game.curTetromino.x += int32(game.velX)
+
+										backupX := game.curTetromino.x
+										game.curTetromino.x += game.velX
 
 										if game.velX < 0 {
 											if game.curTetromino.CheckLeftBoardLimit(renderer) {
-												game.curTetromino.x -= int32(game.velX)
+												game.curTetromino.x = backupX
 											} else {
 												idHit := game.curTetromino.HitGround1(renderer, game.board)
 												if idHit >= 0 {
-													game.curTetromino.x -= int32(game.velX)
+													game.curTetromino.x = backupX
 												} else {
-													game.horizontalMove = int(game.velX)
+													game.horizontalMove = game.velX
 													game.horizontalStartColumn = int(game.curTetromino.Column())
 													break
 												}
 											}
 										} else if game.velX > 0 {
 											if game.curTetromino.CheckRightBoardLimit(renderer) {
-												game.curTetromino.x -= int32(game.velX)
+												game.curTetromino.x = backupX
 											} else {
 												idHit := game.curTetromino.HitGround1(renderer, game.board)
 												if idHit >= 0 {
-													game.curTetromino.x -= int32(game.velX)
+													game.curTetromino.x = backupX
 												} else {
-													game.horizontalMove = int(game.velX)
+													game.horizontalMove = game.velX
 													game.horizontalStartColumn = int(game.curTetromino.Column())
 													break
 												}

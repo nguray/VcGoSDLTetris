@@ -30,7 +30,7 @@ type Game struct {
 	userName              string
 	tblKeyChars           []KeyChar
 	fQuitGame             bool
-	horizontalMove        int
+	horizontalMove        int32
 	horizontalStartColumn int
 	fPause                bool
 	nbCompledLines        int
