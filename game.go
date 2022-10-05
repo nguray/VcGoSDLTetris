@@ -31,7 +31,7 @@ type Game struct {
 	tblKeyChars           []KeyChar
 	fQuitGame             bool
 	horizontalMove        int32
-	horizontalStartColumn int
+	horizontalStartColumn int32
 	fPause                bool
 	nbCompledLines        int
 	iColorHighScore       int

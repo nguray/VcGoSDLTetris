@@ -297,7 +297,7 @@ func main() {
 							}
 
 							if game.horizontalMove != 0 {
-								if game.horizontalStartColumn != int(game.curTetromino.Column()) {
+								if game.horizontalStartColumn != game.curTetromino.Column() {
 									game.curTetromino.x = backupX
 									game.horizontalMove = 0
 									startH = time.Now()
@@ -346,7 +346,7 @@ func main() {
 												} else {
 													startH = time.Now()
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = int(game.curTetromino.Column())
+													game.horizontalStartColumn = game.curTetromino.Column()
 													break
 												}
 											}
@@ -360,7 +360,7 @@ func main() {
 												} else {
 													startH = time.Now()
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = int(game.curTetromino.Column())
+													game.horizontalStartColumn = game.curTetromino.Column()
 													break
 												}
 											}
@@ -417,7 +417,7 @@ func main() {
 													game.curTetromino.x = backupX
 												} else {
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = int(game.curTetromino.Column())
+													game.horizontalStartColumn = game.curTetromino.Column()
 													break
 												}
 											}
@@ -430,7 +430,7 @@ func main() {
 													game.curTetromino.x = backupX
 												} else {
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = int(game.curTetromino.Column())
+													game.horizontalStartColumn = game.curTetromino.Column()
 													break
 												}
 											}
