@@ -110,17 +110,17 @@ func (sh *Shape) RotateRight() {
 	}
 }
 
-func (sh *Shape) CheckLeftBoardLimit(renderer *sdl.Renderer) bool {
+func (sh *Shape) CheckLeftBoardLimit() bool {
 	l := sh.MinX1()*cellSize + sh.x
 	return l < 0
 }
 
-func (sh *Shape) CheckRightBoardLimit(renderer *sdl.Renderer) bool {
+func (sh *Shape) CheckRightBoardLimit() bool {
 	r := sh.MaxX1()*cellSize + cellSize + sh.x
 	return r > NB_COLUMNS*cellSize
 }
 
-func (sh *Shape) CheckBottomLimit(renderer *sdl.Renderer) bool {
+func (sh *Shape) CheckBottomLimit() bool {
 	//--------------------------------------------------
 	b := sh.MaxY1()*cellSize + cellSize + sh.y
 	return b > NB_ROWS*cellSize

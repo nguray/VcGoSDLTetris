@@ -398,10 +398,10 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 							//-- Undo Rotate
 							ga.curTetromino.RotateRight()
 
-						} else if ga.curTetromino.CheckRightBoardLimit(renderer) {
+						} else if ga.curTetromino.CheckRightBoardLimit() {
 							backupX := ga.curTetromino.x
 							//-- Move tetromino inside board
-							for ga.curTetromino.CheckRightBoardLimit(renderer) {
+							for ga.curTetromino.CheckRightBoardLimit() {
 								ga.curTetromino.x--
 							}
 							if ga.curTetromino.HitGround(ga.board) {
@@ -410,11 +410,11 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 								ga.curTetromino.RotateRight()
 							}
 
-						} else if ga.curTetromino.CheckLeftBoardLimit(renderer) {
+						} else if ga.curTetromino.CheckLeftBoardLimit() {
 
 							backupX := ga.curTetromino.x
 							//-- Move tetromino inside board
-							for ga.curTetromino.CheckLeftBoardLimit(renderer) {
+							for ga.curTetromino.CheckLeftBoardLimit() {
 								ga.curTetromino.x++
 							}
 							if ga.curTetromino.HitGround(ga.board) {
