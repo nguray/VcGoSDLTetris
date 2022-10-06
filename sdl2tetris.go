@@ -273,8 +273,7 @@ func main() {
 									game.horizontalMove = 0
 									break
 								} else {
-									idHit := game.curTetromino.HitGround1(renderer, game.board)
-									if idHit >= 0 {
+									if game.curTetromino.HitGround(game.board) {
 										game.curTetromino.x = backupX
 										game.horizontalMove = 0
 										break
@@ -286,8 +285,7 @@ func main() {
 									game.horizontalMove = 0
 									break
 								} else {
-									idHit := game.curTetromino.HitGround1(renderer, game.board)
-									if idHit >= 0 {
+									if game.curTetromino.HitGround(game.board) {
 										game.curTetromino.x = backupX
 										game.horizontalMove = 0
 										break
@@ -315,8 +313,7 @@ func main() {
 						for iOffSet := 0; iOffSet < 6; iOffSet++ {
 							//-- Move down to check
 							game.curTetromino.y++
-							idHit := game.curTetromino.HitGround1(renderer, game.board)
-							if idHit >= 0 {
+							if game.curTetromino.HitGround(game.board) {
 								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
@@ -340,8 +337,7 @@ func main() {
 											if game.curTetromino.CheckLeftBoardLimit(renderer) {
 												game.curTetromino.x = backupX
 											} else {
-												idHit := game.curTetromino.HitGround1(renderer, game.board)
-												if idHit >= 0 {
+												if game.curTetromino.HitGround(game.board) {
 													game.curTetromino.x = backupX
 												} else {
 													startH = time.Now()
@@ -354,8 +350,7 @@ func main() {
 											if game.curTetromino.CheckRightBoardLimit(renderer) {
 												game.curTetromino.x = backupX
 											} else {
-												idHit := game.curTetromino.HitGround1(renderer, game.board)
-												if idHit >= 0 {
+												if game.curTetromino.HitGround(game.board) {
 													game.curTetromino.x = backupX
 												} else {
 													startH = time.Now()
@@ -386,8 +381,7 @@ func main() {
 							//-- Move down to check
 							game.curTetromino.y++
 							fMove := true
-							idHit := game.curTetromino.HitGround1(renderer, game.board)
-							if idHit >= 0 {
+							if game.curTetromino.HitGround(game.board) {
 								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
@@ -412,8 +406,7 @@ func main() {
 											if game.curTetromino.CheckLeftBoardLimit(renderer) {
 												game.curTetromino.x = backupX
 											} else {
-												idHit := game.curTetromino.HitGround1(renderer, game.board)
-												if idHit >= 0 {
+												if game.curTetromino.HitGround(game.board) {
 													game.curTetromino.x = backupX
 												} else {
 													game.horizontalMove = game.velX
@@ -425,8 +418,7 @@ func main() {
 											if game.curTetromino.CheckRightBoardLimit(renderer) {
 												game.curTetromino.x = backupX
 											} else {
-												idHit := game.curTetromino.HitGround1(renderer, game.board)
-												if idHit >= 0 {
+												if game.curTetromino.HitGround(game.board) {
 													game.curTetromino.x = backupX
 												} else {
 													game.horizontalMove = game.velX

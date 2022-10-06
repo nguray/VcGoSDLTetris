@@ -394,9 +394,7 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 					if ga.curTetromino != nil {
 						ga.curTetromino.RotateLeft()
 
-						idHit := ga.curTetromino.HitGround1(renderer, ga.board)
-
-						if idHit >= 0 {
+						if ga.curTetromino.HitGround(ga.board) {
 							//-- Undo Rotate
 							ga.curTetromino.RotateRight()
 
@@ -406,8 +404,7 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 							for ga.curTetromino.CheckRightBoardLimit(renderer) {
 								ga.curTetromino.x--
 							}
-							idHit := ga.curTetromino.HitGround1(renderer, ga.board)
-							if idHit >= 0 {
+							if ga.curTetromino.HitGround(ga.board) {
 								ga.curTetromino.x = backupX
 								//-- Undo Rotate
 								ga.curTetromino.RotateRight()
@@ -420,8 +417,7 @@ func (ga *Game) ProcessEventsPlay(renderer *sdl.Renderer) bool {
 							for ga.curTetromino.CheckLeftBoardLimit(renderer) {
 								ga.curTetromino.x++
 							}
-							idHit := ga.curTetromino.HitGround1(renderer, ga.board)
-							if idHit >= 0 {
+							if ga.curTetromino.HitGround(ga.board) {
 								ga.curTetromino.x = backupX
 								//-- Undo Rotate
 								ga.curTetromino.RotateRight()

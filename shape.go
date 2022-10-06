@@ -126,30 +126,24 @@ func (sh *Shape) CheckBottomLimit(renderer *sdl.Renderer) bool {
 	return b > NB_ROWS*cellSize
 }
 
-func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int) int32 {
+func (sh *Shape) HitGround(board []int) bool {
 	var (
 		ix int32
 		iy int32
 	)
 	//--------------------------------------------------
 
-	renderer.SetDrawColor(255, 0, 0, 255)
 	for _, v := range sh.v {
+
 		x := v.x*cellSize + sh.x + 1
 		y := v.y*cellSize + sh.y + 1
 		ix = int32(x / cellSize)
 		iy = int32(y / cellSize)
-
-		//rect = sdl.Rect{X: int32(x*cellSize + LEFT + 1), Y: int32(y*cellSize + TOP + 1), W: 5, H: 5}
-		//renderer.FillRect(&rect)
-
-		// renderer.DrawLine(LEFT+ix*cellSize, 0, LEFT+ix*cellSize, NB_ROWS*cellSize)
-		// renderer.DrawLine(0, TOP+iy*cellSize, NB_COLUMNS*cellSize, TOP+iy*cellSize)
 		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
 			iHit := iy*NB_COLUMNS + ix
 			v := board[iHit]
 			if v != 0 {
-				return iHit
+				return true
 			}
 		}
 
@@ -161,7 +155,7 @@ func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int) int32 {
 			iHit := iy*NB_COLUMNS + ix
 			v := board[iHit]
 			if v != 0 {
-				return iHit
+				return true
 			}
 		}
 
@@ -169,14 +163,11 @@ func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int) int32 {
 		y = v.y*cellSize + cellSize - 1 + sh.y
 		ix = int32(x / cellSize)
 		iy = int32(y / cellSize)
-		// renderer.DrawLine(LEFT+ix*cellSize, 0, LEFT+ix*cellSize, NB_ROWS*cellSize)
-		// renderer.DrawLine(0, TOP+iy*cellSize, NB_COLUMNS*cellSize, TOP+iy*cellSize)
-
 		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
 			iHit := iy*NB_COLUMNS + ix
 			v := board[iHit]
 			if v != 0 {
-				return iHit
+				return true
 			}
 		}
 
@@ -189,13 +180,13 @@ func (sh *Shape) HitGround1(renderer *sdl.Renderer, board []int) int32 {
 			iHit := iy*NB_COLUMNS + ix
 			v := board[iHit]
 			if v != 0 {
-				return iHit
+				return true
 			}
 		}
 
 	}
 
-	return -1
+	return false
 }
 
 // func (sh *Shape) MinX() int32 {
