@@ -268,7 +268,7 @@ func main() {
 							game.curTetromino.x += game.horizontalMove
 
 							if game.horizontalMove < 0 {
-								if game.curTetromino.CheckLeftBoardLimit(renderer) {
+								if game.curTetromino.CheckLeftBoardLimit() {
 									game.curTetromino.x = backupX
 									game.horizontalMove = 0
 									break
@@ -280,7 +280,7 @@ func main() {
 									}
 								}
 							} else if game.horizontalMove > 0 {
-								if game.curTetromino.CheckRightBoardLimit(renderer) {
+								if game.curTetromino.CheckRightBoardLimit() {
 									game.curTetromino.x = backupX
 									game.horizontalMove = 0
 									break
@@ -318,7 +318,7 @@ func main() {
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
 								game.fDrop = false
-							} else if game.curTetromino.CheckBottomLimit(renderer) {
+							} else if game.curTetromino.CheckBottomLimit() {
 								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
@@ -334,7 +334,7 @@ func main() {
 										game.curTetromino.x += game.velX
 
 										if game.velX < 0 {
-											if game.curTetromino.CheckLeftBoardLimit(renderer) {
+											if game.curTetromino.CheckLeftBoardLimit() {
 												game.curTetromino.x = backupX
 											} else {
 												if game.curTetromino.HitGround(game.board) {
@@ -347,7 +347,7 @@ func main() {
 												}
 											}
 										} else if game.velX > 0 {
-											if game.curTetromino.CheckRightBoardLimit(renderer) {
+											if game.curTetromino.CheckRightBoardLimit() {
 												game.curTetromino.x = backupX
 											} else {
 												if game.curTetromino.HitGround(game.board) {
@@ -387,7 +387,7 @@ func main() {
 								game.NewTetromino()
 								fMove = false
 
-							} else if game.curTetromino.CheckBottomLimit(renderer) {
+							} else if game.curTetromino.CheckBottomLimit() {
 								game.curTetromino.y--
 								game.FreezeCurTetramino1()
 								game.NewTetromino()
@@ -403,7 +403,7 @@ func main() {
 										game.curTetromino.x += game.velX
 
 										if game.velX < 0 {
-											if game.curTetromino.CheckLeftBoardLimit(renderer) {
+											if game.curTetromino.CheckLeftBoardLimit() {
 												game.curTetromino.x = backupX
 											} else {
 												if game.curTetromino.HitGround(game.board) {
@@ -415,7 +415,7 @@ func main() {
 												}
 											}
 										} else if game.velX > 0 {
-											if game.curTetromino.CheckRightBoardLimit(renderer) {
+											if game.curTetromino.CheckRightBoardLimit() {
 												game.curTetromino.x = backupX
 											} else {
 												if game.curTetromino.HitGround(game.board) {
