@@ -433,29 +433,29 @@ func main() {
 							}
 						}
 
-						//-- Check Game Over
-						if game.IsGameOver() {
+					}
+				}
 
-							//--
-							id := game.IsHightScore(game.curScore)
+				//-- Check Game Over
+				if game.IsGameOver() {
 
-							if id >= 0 {
-								//--
-								game.InsertHightScore(id, game.userName, game.curScore)
-								game.curMode = HIGHSCORES
-								processEvents = game.ProcessEventsHightScores
-								game.InitGame()
-							} else {
-								//--
-								game.InitGame()
-								game.curMode = STANDBY
-								processEvents = game.ProcessEventsStandBy
+					//--
+					id := game.IsHightScore(game.curScore)
 
-							}
-
-						}
+					if id >= 0 {
+						//--
+						game.InsertHightScore(id, game.userName, game.curScore)
+						game.curMode = HIGHSCORES
+						processEvents = game.ProcessEventsHightScores
+						game.InitGame()
+					} else {
+						//--
+						game.InitGame()
+						game.curMode = STANDBY
+						processEvents = game.ProcessEventsStandBy
 
 					}
+
 				}
 
 				if elapsedR.Milliseconds() > 500 {
