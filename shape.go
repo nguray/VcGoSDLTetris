@@ -110,23 +110,7 @@ func (sh *Shape) RotateRight() {
 	}
 }
 
-// func (sh *Shape) MinX() int32 {
-// 	var (
-// 		x    int32
-// 		minX int32
-// 	)
-// 	ix := int32(sh.x / cellSize)
-// 	minX = sh.v[0].x + ix
-// 	for i := 1; i < 4; i++ {
-// 		x = sh.v[i].x + ix
-// 		if x < minX {
-// 			minX = x
-// 		}
-// 	}
-// 	return minX
-// }
-
-func (sh *Shape) MinX1() int32 {
+func (sh *Shape) MinX() int32 {
 	var (
 		x    int32
 		minX int32
@@ -141,23 +125,7 @@ func (sh *Shape) MinX1() int32 {
 	return minX
 }
 
-// func (sh *Shape) MaxX() int32 {
-// 	var (
-// 		x    int32
-// 		maxX int32
-// 	)
-// 	ix := int32(sh.x / cellSize)
-// 	maxX = sh.v[0].x + ix
-// 	for i := 1; i < 4; i++ {
-// 		x = sh.v[i].x + ix
-// 		if x > maxX {
-// 			maxX = x
-// 		}
-// 	}
-// 	return maxX
-// }
-
-func (sh *Shape) MaxX1() int32 {
+func (sh *Shape) MaxX() int32 {
 	var (
 		x    int32
 		maxX int32
@@ -172,22 +140,7 @@ func (sh *Shape) MaxX1() int32 {
 	return maxX
 }
 
-// func (sh *Shape) MaxY() int32 {
-// 	var (
-// 		y int32
-// 	)
-// 	iy := int32(sh.y / cellSize)
-// 	maxY := sh.v[0].y + iy
-// 	for i := 1; i < 4; i++ {
-// 		y = sh.v[i].y + iy
-// 		if y > maxY {
-// 			maxY = y
-// 		}
-// 	}
-// 	return maxY
-// }
-
-func (sh *Shape) MaxY1() int32 {
+func (sh *Shape) MaxY() int32 {
 	var (
 		y int32
 	)

@@ -110,18 +110,18 @@ func TetrisRandomizer() int32 {
 }
 
 func IsOutLeftBoardLimit(tetro *Shape) bool {
-	l := tetro.MinX1()*cellSize + tetro.x
+	l := tetro.MinX()*cellSize + tetro.x
 	return l < 0
 }
 
 func IsOutRightBoardLimit(tetro *Shape) bool {
-	r := tetro.MaxX1()*cellSize + cellSize + tetro.x
+	r := tetro.MaxX()*cellSize + cellSize + tetro.x
 	return r > NB_COLUMNS*cellSize
 }
 
 func IsOutBottomLimit(tetro *Shape) bool {
 	//--------------------------------------------------
-	b := tetro.MaxY1()*cellSize + cellSize + tetro.y
+	b := tetro.MaxY()*cellSize + cellSize + tetro.y
 	return b > NB_ROWS*cellSize
 }
 
@@ -193,7 +193,7 @@ func NewTetromino() {
 	curTetromino = nextTetromino
 	curTetromino.x = 6 * cellSize
 	curTetromino.y = 0
-	curTetromino.y = -curTetromino.MaxY1() * cellSize
+	curTetromino.y = -curTetromino.MaxY() * cellSize
 	nextTetromino = ShapeNew(TetrisRandomizer(), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 }
@@ -370,7 +370,7 @@ func ProcessEventsHightScores(renderer *sdl.Renderer) bool {
 	return true
 }
 
-func FreezeCurTetramino1() {
+func FreezeCurTetramino() {
 	//--------------------------------------------------
 	if curTetromino != nil {
 		ix := int32((curTetromino.x + 1) / cellSize)
@@ -606,12 +606,12 @@ func main() {
 							curTetromino.y++
 							if HitGround(curTetromino, game.board) {
 								curTetromino.y--
-								FreezeCurTetramino1()
+								FreezeCurTetramino()
 								NewTetromino()
 								game.fDrop = false
 							} else if IsOutBottomLimit(curTetromino) {
 								curTetromino.y--
-								FreezeCurTetramino1()
+								FreezeCurTetramino()
 								NewTetromino()
 								game.fDrop = false
 							}
@@ -674,13 +674,13 @@ func main() {
 							fMove := true
 							if HitGround(curTetromino, game.board) {
 								curTetromino.y--
-								FreezeCurTetramino1()
+								FreezeCurTetramino()
 								NewTetromino()
 								fMove = false
 
 							} else if IsOutBottomLimit(curTetromino) {
 								curTetromino.y--
-								FreezeCurTetramino1()
+								FreezeCurTetramino()
 								NewTetromino()
 								fMove = false
 							}
