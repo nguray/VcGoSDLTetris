@@ -57,8 +57,8 @@ func ShapeNew(typ, x, y int32) *Shape {
 
 func (sh *Shape) InitGfx() {
 
-	offSet := int(sh.typ * 4)
-	for i := 0; i < 4; i++ {
+	offSet := int(sh.typ) * len(sh.v)
+	for i := 0; i < len(sh.v); i++ {
 		sh.v[i].x = tetrominos[i+offSet].x
 		sh.v[i].y = tetrominos[i+offSet].y
 	}
@@ -89,7 +89,7 @@ func (sh *Shape) Draw(renderer *sdl.Renderer) {
 func (sh *Shape) RotateLeft() {
 	if sh.typ != 5 {
 		var x, y int32
-		for i := 0; i < 4; i++ {
+		for i := 0; i < len(sh.v); i++ {
 			x = sh.v[i].y
 			y = -sh.v[i].x
 			sh.v[i].x = x
@@ -101,7 +101,7 @@ func (sh *Shape) RotateLeft() {
 func (sh *Shape) RotateRight() {
 	if sh.typ != 5 {
 		var x, y int32
-		for i := 0; i < 4; i++ {
+		for i := 0; i < len(sh.v); i++ {
 			x = -sh.v[i].y
 			y = sh.v[i].x
 			sh.v[i].x = x
@@ -116,7 +116,7 @@ func (sh *Shape) MinX() int32 {
 		minX int32
 	)
 	minX = sh.v[0].x
-	for i := 1; i < 4; i++ {
+	for i := 1; i < len(sh.v); i++ {
 		x = sh.v[i].x
 		if x < minX {
 			minX = x
@@ -131,7 +131,7 @@ func (sh *Shape) MaxX() int32 {
 		maxX int32
 	)
 	maxX = sh.v[0].x
-	for i := 1; i < 4; i++ {
+	for i := 1; i < len(sh.v); i++ {
 		x = sh.v[i].x
 		if x > maxX {
 			maxX = x
@@ -145,7 +145,7 @@ func (sh *Shape) MaxY() int32 {
 		y int32
 	)
 	maxY := sh.v[0].y
-	for i := 1; i < 4; i++ {
+	for i := 1; i < len(sh.v); i++ {
 		y = sh.v[i].y
 		if y > maxY {
 			maxY = y
