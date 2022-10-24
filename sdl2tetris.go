@@ -60,6 +60,9 @@ var (
 	succes_sound    *mix.Chunk
 	idtetrominosBag int
 	tetrominosBag   []int32
+	game            *Game
+	curTetromino    *Shape
+	nextTetromino   *Shape
 )
 
 func ComputeScore(nbLines int) int {
@@ -104,6 +107,288 @@ func TetrisRandomizer() int32 {
 	}
 
 	return ityp
+}
+
+func IsOutLeftBoardLimit(tetro *Shape) bool {
+	l := tetro.MinX1()*cellSize + tetro.x
+	return l < 0
+}
+
+func IsOutRightBoardLimit(tetro *Shape) bool {
+	r := tetro.MaxX1()*cellSize + cellSize + tetro.x
+	return r > NB_COLUMNS*cellSize
+}
+
+func IsOutBottomLimit(tetro *Shape) bool {
+	//--------------------------------------------------
+	b := tetro.MaxY1()*cellSize + cellSize + tetro.y
+	return b > NB_ROWS*cellSize
+}
+
+func HitGround(tetro *Shape, board []int) bool {
+	var (
+		ix int32
+		iy int32
+	)
+	//--------------------------------------------------
+
+	for _, v := range tetro.v {
+
+		x := v.x*cellSize + tetro.x + 1
+		y := v.y*cellSize + tetro.y + 1
+		ix = int32(x / cellSize)
+		iy = int32(y / cellSize)
+		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
+			iHit := iy*NB_COLUMNS + ix
+			v := board[iHit]
+			if v != 0 {
+				return true
+			}
+		}
+
+		x = v.x*cellSize + cellSize - 1 + tetro.x
+		y = v.y*cellSize + tetro.y + 1
+		ix = int32(x / cellSize)
+		iy = int32(y / cellSize)
+		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
+			iHit := iy*NB_COLUMNS + ix
+			v := board[iHit]
+			if v != 0 {
+				return true
+			}
+		}
+
+		x = v.x*cellSize + cellSize - 1 + tetro.x
+		y = v.y*cellSize + cellSize - 1 + tetro.y
+		ix = int32(x / cellSize)
+		iy = int32(y / cellSize)
+		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
+			iHit := iy*NB_COLUMNS + ix
+			v := board[iHit]
+			if v != 0 {
+				return true
+			}
+		}
+
+		x = v.x*cellSize + tetro.x + 1
+		y = v.y*cellSize + cellSize - 1 + tetro.y
+		ix = int32(x / cellSize)
+		iy = int32(y / cellSize)
+
+		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
+			iHit := iy*NB_COLUMNS + ix
+			v := board[iHit]
+			if v != 0 {
+				return true
+			}
+		}
+
+	}
+
+	return false
+}
+
+func NewTetromino() {
+	//--------------------------------------------------
+	curTetromino = nextTetromino
+	curTetromino.x = 6 * cellSize
+	curTetromino.y = 0
+	curTetromino.y = -curTetromino.MaxY1() * cellSize
+	nextTetromino = ShapeNew(TetrisRandomizer(), (NB_COLUMNS+3)*cellSize, 10*cellSize)
+
+}
+
+func ProcessEventsPlay(renderer *sdl.Renderer) bool {
+	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.QuitEvent:
+			game.fQuitGame = true
+			return false
+		case *sdl.KeyboardEvent:
+			keyCode := t.Keysym.Sym
+
+			//keys := ""
+			if t.State == sdl.PRESSED && t.Repeat == 0 {
+				switch keyCode {
+				case sdl.K_p:
+					game.fPause = !game.fPause
+				case sdl.K_LEFT:
+					game.velX = -1
+				case sdl.K_RIGHT:
+					game.velX = 1
+				case sdl.K_UP:
+					if curTetromino != nil {
+						curTetromino.RotateLeft()
+
+						if HitGround(curTetromino, game.board) {
+							//-- Undo Rotate
+							curTetromino.RotateRight()
+
+						} else if IsOutRightBoardLimit(curTetromino) {
+							backupX := curTetromino.x
+							//-- Move tetromino inside board
+							for IsOutRightBoardLimit(curTetromino) {
+								curTetromino.x--
+							}
+							if HitGround(curTetromino, game.board) {
+								curTetromino.x = backupX
+								//-- Undo Rotate
+								curTetromino.RotateRight()
+							}
+
+						} else if IsOutLeftBoardLimit(curTetromino) {
+
+							backupX := curTetromino.x
+							//-- Move tetromino inside board
+							for IsOutLeftBoardLimit(curTetromino) {
+								curTetromino.x++
+							}
+							if HitGround(curTetromino, game.board) {
+								curTetromino.x = backupX
+								//-- Undo Rotate
+								curTetromino.RotateRight()
+							}
+
+						}
+
+					}
+				case sdl.K_DOWN:
+					game.fFastDown = true
+				case sdl.K_SPACE:
+					if curTetromino != nil {
+						//-- Drop current Tetromino
+						game.fDrop = true
+					}
+				case sdl.K_ESCAPE:
+					return false
+				}
+			} else if t.State == sdl.RELEASED {
+				switch keyCode {
+				case sdl.K_LEFT:
+					game.velX = 0
+				case sdl.K_RIGHT:
+					game.velX = 0
+				case sdl.K_DOWN:
+					game.fFastDown = false
+				}
+
+			}
+
+		}
+	}
+	return true
+}
+
+func ProcessEventsStandBy(renderer *sdl.Renderer) bool {
+	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.QuitEvent:
+			game.fQuitGame = true
+			println("Quit")
+			return false
+		case *sdl.KeyboardEvent:
+			keyCode := t.Keysym.Sym
+			if t.State == sdl.PRESSED && t.Repeat == 0 {
+				switch keyCode {
+				case sdl.K_SPACE:
+					game.curMode = PLAY
+					processEvents = ProcessEventsPlay
+					NewTetromino()
+				case sdl.K_ESCAPE:
+					game.fQuitGame = true
+					return false
+				}
+			}
+
+		}
+	}
+	return true
+}
+
+func ProcessEventsGameOver(renderer *sdl.Renderer) bool {
+	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.QuitEvent:
+			game.fQuitGame = true
+			println("Quit")
+			return false
+		case *sdl.KeyboardEvent:
+			keyCode := t.Keysym.Sym
+			if t.State == sdl.PRESSED && t.Repeat == 0 {
+				switch keyCode {
+				case sdl.K_SPACE:
+					game.curMode = STANDBY
+					processEvents = ProcessEventsStandBy
+				case sdl.K_ESCAPE:
+					game.fQuitGame = true
+					return false
+				}
+			}
+
+		}
+	}
+	return true
+}
+
+func ProcessEventsHightScores(renderer *sdl.Renderer) bool {
+	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.QuitEvent:
+			game.fQuitGame = true
+			println("Quit")
+			return false
+		case *sdl.KeyboardEvent:
+			keyCode := t.Keysym.Sym
+			if t.State == sdl.PRESSED && t.Repeat == 0 {
+				switch keyCode {
+				case sdl.K_BACKSPACE:
+					sz := len(game.userName)
+					if sz > 0 {
+						game.userName = game.userName[:sz-1]
+						game.highScores[game.idHighScore].name = game.userName
+					}
+				case sdl.K_ESCAPE:
+					game.SaveHighScores("HighScores.txt")
+					game.curMode = STANDBY
+					processEvents = ProcessEventsStandBy
+				case sdl.K_RETURN:
+					game.SaveHighScores("HighScores.txt")
+					game.curMode = STANDBY
+					processEvents = ProcessEventsStandBy
+				default:
+					c := game.getChar(keyCode)
+					if c != "" && game.idHighScore >= 0 {
+						if len(game.userName) < 10 {
+							game.userName += c
+							game.highScores[game.idHighScore].name = game.userName
+						}
+					}
+				}
+			}
+		}
+	}
+	return true
+}
+
+func FreezeCurTetramino1() {
+	//--------------------------------------------------
+	if curTetromino != nil {
+		ix := int32((curTetromino.x + 1) / cellSize)
+		iy := int32((curTetromino.y + 1) / cellSize)
+		for _, v := range curTetromino.v {
+			x := v.x + ix
+			y := v.y + iy
+			if x >= 0 && x < NB_COLUMNS && y >= 0 && y < NB_ROWS {
+				game.board[y*NB_COLUMNS+x] = int(curTetromino.typ)
+			}
+		}
+		//--
+		game.nbCompledLines = game.ComputeCompletedLines()
+		if game.nbCompledLines > 0 {
+			game.curScore += ComputeScore(game.nbCompledLines)
+		}
+
+	}
 }
 
 func main() {
@@ -190,12 +475,14 @@ func main() {
 	InitTetrominos()
 	myRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	game := GameNew()
+	game = GameNew()
+	curTetromino = nil
+	nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 
 	game.LoadHighScores("HighScores.txt")
 
 	game.curMode = STANDBY
-	processEvents = game.ProcessEventsStandBy
+	processEvents = ProcessEventsStandBy
 
 	startH := time.Now()
 	startV := startH
@@ -228,14 +515,18 @@ func main() {
 				//--
 				game.InsertHightScore(id, game.userName, game.curScore)
 				game.curMode = HIGHSCORES
-				processEvents = game.ProcessEventsHightScores
+				processEvents = ProcessEventsHightScores
 				game.InitGame()
+				curTetromino = nil
+				nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 				running = true
 			} else {
 				//--
 				game.InitGame()
+				curTetromino = nil
+				nextTetromino = ShapeNew(int32(myRand.Intn(7)+1), (NB_COLUMNS+3)*cellSize, 10*cellSize)
 				game.curMode = STANDBY
-				processEvents = game.ProcessEventsStandBy
+				processEvents = ProcessEventsStandBy
 				running = true
 			}
 
@@ -244,7 +535,7 @@ func main() {
 		//-- Game Mode Update States
 		if game.curMode == PLAY {
 
-			if game.curTetromino != nil && !game.fPause {
+			if curTetromino != nil && !game.fPause {
 
 				elapsedV := time.Since(startV)
 				elapsedR := time.Since(startR)
@@ -264,29 +555,29 @@ func main() {
 
 						for iOffSet := 0; iOffSet < int(4); iOffSet++ {
 
-							backupX := game.curTetromino.x
-							game.curTetromino.x += game.horizontalMove
+							backupX := curTetromino.x
+							curTetromino.x += game.horizontalMove
 
 							if game.horizontalMove < 0 {
-								if game.curTetromino.CheckLeftBoardLimit() {
-									game.curTetromino.x = backupX
+								if IsOutLeftBoardLimit(curTetromino) {
+									curTetromino.x = backupX
 									game.horizontalMove = 0
 									break
 								} else {
-									if game.curTetromino.HitGround(game.board) {
-										game.curTetromino.x = backupX
+									if HitGround(curTetromino, game.board) {
+										curTetromino.x = backupX
 										game.horizontalMove = 0
 										break
 									}
 								}
 							} else if game.horizontalMove > 0 {
-								if game.curTetromino.CheckRightBoardLimit() {
-									game.curTetromino.x = backupX
+								if IsOutRightBoardLimit(curTetromino) {
+									curTetromino.x = backupX
 									game.horizontalMove = 0
 									break
 								} else {
-									if game.curTetromino.HitGround(game.board) {
-										game.curTetromino.x = backupX
+									if HitGround(curTetromino, game.board) {
+										curTetromino.x = backupX
 										game.horizontalMove = 0
 										break
 									}
@@ -295,8 +586,8 @@ func main() {
 							}
 
 							if game.horizontalMove != 0 {
-								if game.horizontalStartColumn != game.curTetromino.Column() {
-									game.curTetromino.x = backupX
+								if game.horizontalStartColumn != curTetromino.Column() {
+									curTetromino.x = backupX
 									game.horizontalMove = 0
 									startH = time.Now()
 									break
@@ -312,16 +603,16 @@ func main() {
 						startV = time.Now()
 						for iOffSet := 0; iOffSet < 6; iOffSet++ {
 							//-- Move down to check
-							game.curTetromino.y++
-							if game.curTetromino.HitGround(game.board) {
-								game.curTetromino.y--
-								game.FreezeCurTetramino1()
-								game.NewTetromino()
+							curTetromino.y++
+							if HitGround(curTetromino, game.board) {
+								curTetromino.y--
+								FreezeCurTetramino1()
+								NewTetromino()
 								game.fDrop = false
-							} else if game.curTetromino.CheckBottomLimit() {
-								game.curTetromino.y--
-								game.FreezeCurTetramino1()
-								game.NewTetromino()
+							} else if IsOutBottomLimit(curTetromino) {
+								curTetromino.y--
+								FreezeCurTetramino1()
+								NewTetromino()
 								game.fDrop = false
 							}
 							if game.fDrop {
@@ -330,32 +621,32 @@ func main() {
 
 									if elapsed.Milliseconds() > 20 {
 
-										backupX := game.curTetromino.x
-										game.curTetromino.x += game.velX
+										backupX := curTetromino.x
+										curTetromino.x += game.velX
 
 										if game.velX < 0 {
-											if game.curTetromino.CheckLeftBoardLimit() {
-												game.curTetromino.x = backupX
+											if IsOutLeftBoardLimit(curTetromino) {
+												curTetromino.x = backupX
 											} else {
-												if game.curTetromino.HitGround(game.board) {
-													game.curTetromino.x = backupX
+												if HitGround(curTetromino, game.board) {
+													curTetromino.x = backupX
 												} else {
 													startH = time.Now()
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = game.curTetromino.Column()
+													game.horizontalStartColumn = curTetromino.Column()
 													break
 												}
 											}
 										} else if game.velX > 0 {
-											if game.curTetromino.CheckRightBoardLimit() {
-												game.curTetromino.x = backupX
+											if IsOutRightBoardLimit(curTetromino) {
+												curTetromino.x = backupX
 											} else {
-												if game.curTetromino.HitGround(game.board) {
-													game.curTetromino.x = backupX
+												if HitGround(curTetromino, game.board) {
+													curTetromino.x = backupX
 												} else {
 													startH = time.Now()
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = game.curTetromino.Column()
+													game.horizontalStartColumn = curTetromino.Column()
 													break
 												}
 											}
@@ -379,18 +670,18 @@ func main() {
 
 						for iOffSet := 0; iOffSet < 3; iOffSet++ {
 							//-- Move down to check
-							game.curTetromino.y++
+							curTetromino.y++
 							fMove := true
-							if game.curTetromino.HitGround(game.board) {
-								game.curTetromino.y--
-								game.FreezeCurTetramino1()
-								game.NewTetromino()
+							if HitGround(curTetromino, game.board) {
+								curTetromino.y--
+								FreezeCurTetramino1()
+								NewTetromino()
 								fMove = false
 
-							} else if game.curTetromino.CheckBottomLimit() {
-								game.curTetromino.y--
-								game.FreezeCurTetramino1()
-								game.NewTetromino()
+							} else if IsOutBottomLimit(curTetromino) {
+								curTetromino.y--
+								FreezeCurTetramino1()
+								NewTetromino()
 								fMove = false
 							}
 							if fMove {
@@ -399,30 +690,30 @@ func main() {
 									if elapsed.Milliseconds() > 15 {
 										startH = time.Now()
 
-										backupX := game.curTetromino.x
-										game.curTetromino.x += game.velX
+										backupX := curTetromino.x
+										curTetromino.x += game.velX
 
 										if game.velX < 0 {
-											if game.curTetromino.CheckLeftBoardLimit() {
-												game.curTetromino.x = backupX
+											if IsOutLeftBoardLimit(curTetromino) {
+												curTetromino.x = backupX
 											} else {
-												if game.curTetromino.HitGround(game.board) {
-													game.curTetromino.x = backupX
+												if HitGround(curTetromino, game.board) {
+													curTetromino.x = backupX
 												} else {
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = game.curTetromino.Column()
+													game.horizontalStartColumn = curTetromino.Column()
 													break
 												}
 											}
 										} else if game.velX > 0 {
-											if game.curTetromino.CheckRightBoardLimit() {
-												game.curTetromino.x = backupX
+											if IsOutRightBoardLimit(curTetromino) {
+												curTetromino.x = backupX
 											} else {
-												if game.curTetromino.HitGround(game.board) {
-													game.curTetromino.x = backupX
+												if HitGround(curTetromino, game.board) {
+													curTetromino.x = backupX
 												} else {
 													game.horizontalMove = game.velX
-													game.horizontalStartColumn = game.curTetromino.Column()
+													game.horizontalStartColumn = curTetromino.Column()
 													break
 												}
 											}
@@ -446,13 +737,15 @@ func main() {
 						//--
 						game.InsertHightScore(id, game.userName, game.curScore)
 						game.curMode = HIGHSCORES
-						processEvents = game.ProcessEventsHightScores
+						processEvents = ProcessEventsHightScores
 						game.InitGame()
+						curTetromino = nil
 					} else {
 						//--
+						game.curMode = GAMEOVER
+						processEvents = ProcessEventsGameOver
 						game.InitGame()
-						game.curMode = STANDBY
-						processEvents = game.ProcessEventsStandBy
+						curTetromino = nil
 
 					}
 
@@ -460,7 +753,7 @@ func main() {
 
 				if elapsedR.Milliseconds() > 500 {
 					startR = time.Now()
-					game.nextTetromino.RotateRight()
+					nextTetromino.RotateRight()
 
 				}
 
@@ -481,15 +774,19 @@ func main() {
 		game.DrawScore(renderer)
 
 		//--
-		if game.curTetromino != nil {
-			game.curTetromino.Draw(renderer)
+		if curTetromino != nil {
+			curTetromino.Draw(renderer)
 		}
-		if game.nextTetromino != nil {
-			game.nextTetromino.Draw(renderer)
+		if nextTetromino != nil {
+			nextTetromino.Draw(renderer)
 		}
 
 		if game.curMode == STANDBY {
 			game.DrawStandBy(renderer)
+
+		} else if game.curMode == GAMEOVER {
+			game.DrawGameOver(renderer)
+
 		} else if game.curMode == HIGHSCORES {
 			elapsedV := time.Since(startV)
 			if elapsedV.Milliseconds() > 200 {
@@ -497,6 +794,7 @@ func main() {
 				game.iColorHighScore++
 			}
 			game.DrawHightScores(renderer)
+
 		}
 
 		//--
