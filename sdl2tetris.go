@@ -335,8 +335,8 @@ func main() {
 		panic(err)
 	}
 	defer tetris_music.Free()
-	tetris_music.Play(-1)
 	mix.VolumeMusic(20)
+	tetris_music.Play(-1)
 
 	fullPathName = filepath.Join(curDir, "resources", "109662__grunz__success.wav")
 	succes_sound, err = mix.LoadWAV(fullPathName)
@@ -652,20 +652,19 @@ func main() {
 			nextTetromino.Draw(renderer)
 		}
 
-		if game.curMode == STANDBY {
+		//--
+		switch game.curMode {
+		case STANDBY:
 			game.DrawStandBy(renderer)
-
-		} else if game.curMode == GAMEOVER {
+		case GAMEOVER:
 			game.DrawGameOver(renderer)
-
-		} else if game.curMode == HIGHSCORES {
+		case HIGHSCORES:
 			elapsedV := time.Since(startV)
 			if elapsedV.Milliseconds() > 200 {
 				startV = time.Now()
 				game.iColorHighScore++
 			}
 			game.DrawHightScores(renderer)
-
 		}
 
 		//--
