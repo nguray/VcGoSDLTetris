@@ -157,3 +157,70 @@ func (sh *Shape) MaxY() int32 {
 func (sh *Shape) Column() int32 {
 	return int32(sh.x / cellSize)
 }
+
+func (sh *Shape) IsOutLeftBoardLimit() bool {
+	l := sh.MinX()*cellSize + sh.x
+	return l < 0
+}
+
+func (sh *Shape) IsOutRightBoardLimit() bool {
+	r := sh.MaxX()*cellSize + cellSize + sh.x
+	return r > NB_COLUMNS*cellSize
+}
+
+func (sh *Shape) IsAlwaysOutBoardLimit() bool {
+	return true
+}
+
+func (sh *Shape) IsOutBottomLimit() bool {
+	//--------------------------------------------------
+	b := sh.MaxY()*cellSize + cellSize + sh.y
+	return b > NB_ROWS*cellSize
+}
+
+func (sh *Shape) HitGround(board []int) bool {
+
+	//--------------------------------------------------
+
+	Hit := func(x int32, y int32) bool {
+		ix := int32(x / cellSize)
+		iy := int32(y / cellSize)
+		if (ix >= 0) && ix < NB_COLUMNS && (iy >= 0) && (iy < NB_ROWS) {
+			v := board[iy*NB_COLUMNS+ix]
+			if v != 0 {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, v := range sh.v {
+
+		x := v.x*cellSize + sh.x + 1
+		y := v.y*cellSize + sh.y + 1
+		if Hit(x, y) {
+			return true
+		}
+
+		x = v.x*cellSize + cellSize - 1 + sh.x
+		y = v.y*cellSize + sh.y + 1
+		if Hit(x, y) {
+			return true
+		}
+
+		x = v.x*cellSize + cellSize - 1 + sh.x
+		y = v.y*cellSize + cellSize - 1 + sh.y
+		if Hit(x, y) {
+			return true
+		}
+
+		x = v.x*cellSize + sh.x + 1
+		y = v.y*cellSize + cellSize - 1 + sh.y
+		if Hit(x, y) {
+			return true
+		}
+
+	}
+
+	return false
+}

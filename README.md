@@ -1,2 +1,2 @@
 # VcGoSDLTetris
-Tetris Game in GoLang using SDL2
+Simple Tetris game in GoLang using SDL2

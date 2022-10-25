@@ -420,3 +420,24 @@ func (ga *Game) LoadHighScores(fileName string) {
 	}
 
 }
+
+func (ga *Game) FreezeTetromino(tetro *Shape) {
+	//--------------------------------------------------
+	if tetro != nil {
+		ix := int32((tetro.x + 1) / cellSize)
+		iy := int32((tetro.y + 1) / cellSize)
+		for _, v := range tetro.v {
+			x := v.x + ix
+			y := v.y + iy
+			if x >= 0 && x < NB_COLUMNS && y >= 0 && y < NB_ROWS {
+				ga.board[y*NB_COLUMNS+x] = int(tetro.typ)
+			}
+		}
+		//--
+		ga.nbCompledLines = ga.ComputeCompletedLines()
+		if ga.nbCompledLines > 0 {
+			ga.curScore += ComputeScore(ga.nbCompledLines)
+		}
+
+	}
+}
