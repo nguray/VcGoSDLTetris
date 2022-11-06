@@ -129,6 +129,7 @@ func ProcessEventsPlay(renderer *sdl.Renderer) bool {
 			game.fQuitGame = true
 			return false
 		case *sdl.KeyboardEvent:
+
 			keyCode := t.Keysym.Sym
 
 			//keys := ""
