@@ -192,10 +192,8 @@ func ProcessEventsPlay(renderer *sdl.Renderer) bool {
 				switch keyCode {
 				case sdl.K_LEFT:
 					game.velX = 0
-					isOutLRBoardLimit = curTetromino.IsAlwaysOutBoardLimit
 				case sdl.K_RIGHT:
 					game.velX = 0
-					isOutLRBoardLimit = curTetromino.IsAlwaysOutBoardLimit
 				case sdl.K_DOWN:
 					game.fFastDown = false
 				}
@@ -465,13 +463,6 @@ func main() {
 
 							backupX := curTetromino.x
 							curTetromino.x += game.horizontalMove
-
-							if game.horizontalMove < 0 {
-								isOutLRBoardLimit = curTetromino.IsOutLeftBoardLimit
-							} else {
-								// game.horizontalMove > 0
-								isOutLRBoardLimit = curTetromino.IsOutRightBoardLimit
-							}
 
 							if isOutLRBoardLimit() {
 								curTetromino.x = backupX
