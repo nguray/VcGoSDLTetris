@@ -89,24 +89,39 @@ func (sh *Shape) Draw(renderer *sdl.Renderer) {
 func (sh *Shape) RotateLeft() {
 	if sh.typ != 5 {
 		var x, y int32
-		for i := 0; i < len(sh.v); i++ {
+		// for i := 0; i < len(sh.v); i++ {
+		// 	x = sh.v[i].y
+		// 	y = -sh.v[i].x
+		// 	sh.v[i].x = x
+		// 	sh.v[i].y = y
+		// }
+
+		for i := range sh.v {
 			x = sh.v[i].y
 			y = -sh.v[i].x
 			sh.v[i].x = x
 			sh.v[i].y = y
 		}
+
 	}
 }
 
 func (sh *Shape) RotateRight() {
 	if sh.typ != 5 {
 		var x, y int32
-		for i := 0; i < len(sh.v); i++ {
+		// for i := 0; i < len(sh.v); i++ {
+		// 	x = -sh.v[i].y
+		// 	y = sh.v[i].x
+		// 	sh.v[i].x = x
+		// 	sh.v[i].y = y
+		// }
+		for i := range sh.v {
 			x = -sh.v[i].y
 			y = sh.v[i].x
 			sh.v[i].x = x
 			sh.v[i].y = y
 		}
+
 	}
 }
 
