@@ -58,9 +58,8 @@ func ShapeNew(typ, x, y int32) *Shape {
 func (sh *Shape) InitGfx() {
 
 	offSet := int(sh.typ) * len(sh.v)
-	for i := 0; i < len(sh.v); i++ {
-		sh.v[i].x = tetrominos[i+offSet].x
-		sh.v[i].y = tetrominos[i+offSet].y
+	for i := range sh.v {
+		sh.v[i] = tetrominos[i+offSet]
 	}
 
 }

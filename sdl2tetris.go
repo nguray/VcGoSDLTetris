@@ -359,21 +359,7 @@ func main() {
 	//var rects []sdl.Rect
 
 	//--
-	tetrominosBag = make([]int32, 14)
-	tetrominosBag[0] = 1
-	tetrominosBag[1] = 2
-	tetrominosBag[2] = 3
-	tetrominosBag[3] = 4
-	tetrominosBag[4] = 5
-	tetrominosBag[5] = 6
-	tetrominosBag[6] = 7
-	tetrominosBag[7] = 1
-	tetrominosBag[8] = 2
-	tetrominosBag[9] = 3
-	tetrominosBag[10] = 4
-	tetrominosBag[11] = 5
-	tetrominosBag[12] = 6
-	tetrominosBag[13] = 7
+	tetrominosBag = []int32{1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}
 	idtetrominosBag = 14
 
 	cellSize = int32(WIN_WIDTH / (NB_COLUMNS + 7))
