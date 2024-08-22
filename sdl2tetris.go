@@ -93,13 +93,13 @@ func TetrisRandomizer() int32 {
 		iSrc int32
 		ityp int32
 	)
-
-	if idtetrominosBag < 14 {
+	l := len(tetrominosBag)
+	if idtetrominosBag < l {
 		ityp = tetrominosBag[idtetrominosBag]
 		idtetrominosBag += 1
 	} else {
 		//-- Shuttle bag
-		for i := 0; i < 14; i++ {
+		for i := 0; i < l; i++ {
 			iSrc = int32(myRand.Intn(14))
 			ityp = tetrominosBag[iSrc]
 			tetrominosBag[iSrc] = tetrominosBag[0]
